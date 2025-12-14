@@ -125,3 +125,10 @@ poetry run pytest
 ```
 
 This will run all tests in the `tests/` directory.
+
+# Local Docker Testing
+
+```bash
+docker build -t anyllm2music-backend .
+docker run -p 8000:8000 anyllm2music-backend
+```
