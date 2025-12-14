@@ -5,6 +5,6 @@ from src.routes.root import router
 
 load_dotenv()
 
-app = FastAPI(title="Template FastAPI", version="0.1.0")
+app = FastAPI(title="AnyLLM2Music", version="0.1.0")
 
 app.include_router(router)
