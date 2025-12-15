@@ -6,7 +6,7 @@ This project aims at using purely LLM to create multiple-channel music, given us
 
 ## Project Overview
 
-```Mermaid
+```mermaid
 graph TD;
     A[User Input: Text Description] --> B[Define Music Plan<br/>Genre, Mood, Tempo, Key, etc.];
     B --> C[Define Chord Backbone<br/>Sections, Chords, Motifs];
