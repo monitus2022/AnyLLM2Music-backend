@@ -7,20 +7,20 @@ This project aims at using purely LLM to create multiple-channel music, given us
 ## Project Overview
 
 ```Mermaid
-graph TD
-    A[User Input: Text Description] --> B[Define Music Plan<br/>Genre, Mood, Tempo, Key, etc.]
-    B --> C[Define Chord Backbone<br/>Sections, Chords, Motifs]
-    C --> D[Define Rhythm Grid]
-    D --> E[Generate Note Events]
-    E --> E1[Melody]
-    E --> E2[Bass]
-    E --> E3[Percussion]
-    E --> E4[Harmony]
-    E1 --> F[Convert JSON to MIDI<br/>midi_generation.py]
-    E2 --> F
-    E3 --> F
-    E4 --> F
-    F --> G[Synthesize Audio<br/>MIDI to Audio file]
+graph TD;
+    A[User Input: Text Description] --> B[Define Music Plan<br/>Genre, Mood, Tempo, Key, etc.];
+    B --> C[Define Chord Backbone<br/>Sections, Chords, Motifs];
+    C --> D[Define Rhythm Grid];
+    D --> E[Generate Note Events];
+    E --> E1[Melody];
+    E --> E2[Bass];
+    E --> E3[Percussion];
+    E --> E4[Harmony];
+    E1 --> F[Convert JSON to MIDI<br/>midi_generation.py];
+    E2 --> F;
+    E3 --> F;
+    E4 --> F;
+    F --> G[Synthesize Audio<br/>MIDI to Audio file];
 ```
 
 ## Tech Stack
