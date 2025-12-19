@@ -78,7 +78,7 @@ Format the answer as a json with concise but specific details.
 
 Output format:
 ----------------------
-{MUSIC_PLAN_OUTPUT_FORMAT}
+{str(MUSIC_PLAN_OUTPUT_FORMAT)}
 ----------------------
 Do not generate notes or MIDI tokens yet—only the high-level outline.
 
@@ -117,7 +117,7 @@ Given the outline below, output only the harmonic backbone in compact JSON.
 
 Output format:
 ---------------
-{CHORD_OUTPUT_FORMAT}
+{str(CHORD_OUTPUT_FORMAT)}
 ---------------
 Do not include rhythm grids, dynamics, or other details yet.
 
@@ -148,7 +148,7 @@ Given the harmonic backbone below, expand into rhythmic and expressive detail in
 
 Output format:
 ---------------
-{RHYTHM_OUTPUT_FORMAT}
+{str(RHYTHM_OUTPUT_FORMAT)}
 Do not regenerate chords—only add rhythmic/expression detail.
 
 Backbone:

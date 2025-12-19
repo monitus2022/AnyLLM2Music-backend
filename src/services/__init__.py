@@ -1,1 +1,1 @@
-from .llm import LlmService
+from .llm import llm_service

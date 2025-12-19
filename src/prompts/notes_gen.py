@@ -16,6 +16,8 @@ NOTE_EVENTS_OUTPUT_FORMAT = {
   ]
 }
 
+NOTE_EVENTS_ARRAY_EXPLANATION = {"beat":1, "pitch":"D4", "duration":"quarter", "velocity":80}
+
 RHYTHM_INPUT = """<No rtythm input is provided from previous steps>"""
 
 ALL_CHANNELS = ["melody", "bass", "perc", "harmony"]
@@ -29,11 +31,11 @@ Only include the {channel} channel. Do not include other channels.
 
 Output format:
 ----------------
-{NOTE_EVENTS_OUTPUT_FORMAT}
+{str(NOTE_EVENTS_OUTPUT_FORMAT)}
 ----------------
 
 In the example, the first element in "events" represent the following:
-{"beat":1, "pitch":"D4", "duration":"quarter", "velocity":80}
+{str(NOTE_EVENTS_ARRAY_EXPLANATION)}
 
 Input:
 {RHYTHM_INPUT}

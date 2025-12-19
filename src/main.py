@@ -1,9 +1,5 @@
 from fastapi import FastAPI
-from dotenv import load_dotenv
-
-from src.routes.root import router
-
-load_dotenv()
+from .routes import router
 
 app = FastAPI(title="AnyLLM2Music", version="0.1.0")
 
