@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from .llm import llm_health, create_music_plan
+from .llm import llm_health, create_music_plan, create_music_rhythm
 
 router = APIRouter()
 
@@ -13,7 +13,8 @@ def health_check():
 
 for r in [
     llm_health,
-    create_music_plan
+    create_music_plan,
+    create_music_rhythm,
     ]:
     router.add_api_route(
         path="/" + r.__name__,

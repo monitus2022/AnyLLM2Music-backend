@@ -140,7 +140,7 @@ RHYTHM_OUTPUT_FORMAT = {
   "loop": "resolves to Em, repeat or transition to B"
 }
 
-CHORD_INPUT = """<No chord input is provided from previous steps.>"""
+MUSIC_CHORDS_INPUT = """<No chord input is provided from previous steps.>"""
 
 DEFINE_RHYTHM_PROMPT = f"""
 You are a music arranger. 
@@ -152,5 +152,5 @@ Output format:
 Do not regenerate chords—only add rhythmic/expression detail.
 
 Backbone:
-{CHORD_INPUT}
+{MUSIC_CHORDS_INPUT}
 """
