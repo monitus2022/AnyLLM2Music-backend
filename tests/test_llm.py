@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import Mock
 from src.services.llm import LlmService
+from src.schemas.openrouter import PromptRequest, CompletionKwargs
 
 @pytest.fixture
 def mocked_client(monkeypatch):
@@ -23,12 +24,14 @@ def test_prompt_llm_openrouter(mocked_client):
     mocked_model = "llama3"
     mocked_config = {"temperature": 0.7}
 
-    response = service.prompt_llm(
+    prompt_request = PromptRequest(
         user_messages=mocked_user_messages,
         system_messages=mocked_system_messages,
         model=mocked_model,
-        kwargs=mocked_config
+        kwargs=CompletionKwargs(**mocked_config)
     )
+
+    response = service.prompt_llm(prompt_request)
 
     mocked_client.chat.completions.create.assert_called_once_with(
         model=mocked_model,

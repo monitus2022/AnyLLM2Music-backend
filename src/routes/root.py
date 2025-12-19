@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from .llm import llm_health
+from .llm import llm_health, create_music_plan
 
 router = APIRouter()
 
@@ -11,7 +11,10 @@ def read_root():
 def health_check():
     return {"status": "healthy"}
 
-for r in [llm_health]:
+for r in [
+    llm_health,
+    create_music_plan
+    ]:
     router.add_api_route(
         path="/" + r.__name__,
         endpoint=r,
