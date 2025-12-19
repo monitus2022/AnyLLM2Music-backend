@@ -1,30 +1,30 @@
 {
     "description": "Japanese School Teen Girl theme",
     "music_plan": {
-        "1_genre_style": "8-bit chiptune with Japanese video game influences (bright, upbeat)",
-        "2_mood_emotion": "Energetic and lively, capturing the spirit of Japanese school teen girls",
+        "1_genre_style": "8-bit chiptune with Japanese school pop influences (square waves, limited polyphony)",
+        "2_mood_emotion": "Energetic and youthful school life atmosphere, evoking fun and activity",
         "3_tempo_feel": {
             "bpm": 120,
             "meter": "4/4",
-            "feel": "Bouncy, with emphasis on off-beat rhythms"
+            "feel": "Straight 8ths with bouncy rhythm"
         },
-        "4_key_tonality": "C minor (Aeolian mode, with occasional major inflections for a brighter feel)",
+        "4_key_tonality": "C minor (Aeolian mode)",
         "5_instruments": [
             {
-                "name": "Pulse Wave Lead",
+                "name": "Square Wave Lead",
                 "role": "melody"
             },
             {
-                "name": "Saw Wave",
-                "role": "harmony"
+                "name": "Triangle Wave",
+                "role": "bass"
             },
             {
                 "name": "Noise Channel",
                 "role": "percussion"
             },
             {
-                "name": "Triangle Wave",
-                "role": "bass"
+                "name": "Pulse Wave",
+                "role": "harmony/chords"
             }
         ],
         "6_structure": [
@@ -35,13 +35,13 @@
             },
             {
                 "section": "A",
-                "bars": 8,
+                "bars": 4,
                 "transition": "build to B"
             },
             {
                 "section": "B",
-                "bars": 6,
-                "transition": "release to outro"
+                "bars": 4,
+                "transition": "return to A"
             },
             {
                 "section": "Outro",
@@ -50,17 +50,17 @@
             }
         ],
         "7_motivic_ideas": {
-            "Intro": "Motif1: Simple, ascending arpeggio (C-Eb-G-C)",
-            "A": "Motif2: Bouncy, pulsing melody (C-D-Eb-G)",
-            "B": "Motif3: Descending scale run (G-F-Eb-D-C), counterpoint with Motif2",
-            "Outro": "Motif1 inverted + resolve to C"
+            "Intro": "Motif1: Simple upbeat arpeggio (C-Eb-G)",
+            "A": "Motif2: Bouncy melody line (G-F-Eb-D-C), with bass pulses",
+            "B": "Motif3: Call-response between lead and harmony (C-G-Eb, response Eb-G-C)",
+            "Outro": "Motif1 repeated and slowed"
         },
-        "8_dynamic_contour": "pp intro \u2192 mf A \u2192 f B \u2192 mp outro",
+        "8_dynamic_contour": "p intro (light start) \u2192 mf A (energetic drive) \u2192 f B (peak energy) \u2192 p outro (gentle fade)",
         "9_length_scale": {
-            "total_bars": 18,
-            "duration_seconds": "30s at 120 BPM"
+            "total_bars": 12,
+            "duration_seconds": "approx 30s at 120 BPM"
         },
-        "10_looping_behavior": "Seamless loop from end of A back to A; outro optional for full playthrough"
+        "10_looping_behavior": "Loop from end of A to A for extension; outro for complete piece"
     },
     "music_chords": {
         "key": "C minor (Aeolian mode)",
@@ -70,112 +70,199 @@
                 "bars": 2,
                 "chords": [
                     "Cm",
-                    "G7"
+                    "Ab"
                 ],
                 "motifs": {
-                    "Intro": [
-                        1,
-                        2
-                    ]
+                    "Intro": "Motif1: Simple upbeat arpeggio (C-Eb-G)"
                 },
-                "loop": "fade to A"
+                "loop": "fade in to A"
             },
             {
                 "name": "A",
-                "bars": 8,
+                "bars": 4,
                 "chords": [
                     "Cm",
-                    "G7",
-                    "Am",
-                    "F",
-                    "Cm",
-                    "G7",
-                    "F",
+                    "Ab",
+                    "Eb",
+                    "Bb",
                     "Cm"
                 ],
                 "motifs": {
-                    "A": [
-                        3,
-                        4,
-                        5,
-                        6,
-                        7,
-                        8,
-                        9,
-                        10
-                    ]
+                    "A": "Motif2: Bouncy melody line (G-F-Eb-D-C), with bass pulses"
                 },
-                "loop": "build to B or repeat"
+                "loop": "build to B"
             },
             {
                 "name": "B",
-                "bars": 6,
+                "bars": 4,
                 "chords": [
-                    "F",
+                    "Fm",
+                    "Eb",
+                    "Bb",
                     "G",
-                    "Am",
-                    "F",
-                    "Cm",
-                    "G7"
+                    "Cm"
                 ],
                 "motifs": {
-                    "B": [
-                        11,
-                        12,
-                        13,
-                        14,
-                        15,
-                        16
-                    ]
+                    "B": "Motif3: Call-response between lead and harmony (C-G-Eb, response Eb-G-C)"
                 },
-                "loop": "release to Outro"
+                "loop": "return to A"
             },
             {
                 "name": "Outro",
                 "bars": 2,
                 "chords": [
                     "Cm",
-                    "G7"
+                    "Ab"
                 ],
                 "motifs": {
-                    "Outro": [
-                        17,
-                        18
-                    ]
+                    "Outro": "Motif1 repeated and slowed"
                 },
                 "loop": "fade out"
             }
         ]
     },
     "music_rhythm": {
-        "section": "A",
-        "bars": 8,
-        "bass": [
-            "8ths C-Eb (Cm root-3rd) bars 1-6",
-            "sync 16ths C-Eb-G-C bars 7-8"
-        ],
-        "perc": [
-            "Kick on 1, Snare on 2+4, Hi-hat 8ths bars 1-7; snare fill (snare 16ths) bar 8"
-        ],
-        "melody": [
-            "Motif A: Eb-D-C-Bb (descending, 8ths) bars 1-2,5-6",
-            "Motif B: G-A-G-F (ascending, quarters) bars 3-4,7-8"
-        ],
-        "harmony": [
-            "Sustain Cm triad (C-Eb-G) bars 1-6",
-            "G7 triad (G-B-D-F) bar 7",
-            "crescendo bar 7"
-        ],
-        "voiceLeading": [
-            "stepwise Eb-D-C in melody",
-            "leaps G-B in bass"
-        ],
-        "dynamics": [
-            "mf (vel 60-80) bars 1-4",
-            "crescendo (vel 80-100) bar 7",
-            "f (vel 90-110) bar 8"
-        ],
-        "polyphony": "\u22642 voices/channel, no overlaps in harmony",
-        "loop": "resolves to Em, repeat or transition to B"
+        "sections": [
+            {
+                "section": "Intro",
+                "bars": 2,
+                "bass": [
+                    "8ths C-G (Cm root-5th) bars 1-2"
+                ],
+                "perc": [
+                    "Kick on 1 (vel 70), Hi-hat 8ths (vel 50) bars 1-2",
+                    "No snare bars 1-2"
+                ],
+                "melody": [
+                    "Motif Intro: C4-Eb4-G4 (arpeggio, 8ths vel 60) bar 1 beats 1-3",
+                    "C5 hold (half note vel 55) bar 1 beat 4",
+                    "Eb4-G4-C5 (arpeggio, 8ths vel 65) bar 2 beats 1-3",
+                    "Eb5 hold (half note vel 60) bar 2 beat 4"
+                ],
+                "harmony": [
+                    "Sustain Cm triad (C3-Eb3-G3, whole notes vel 40-50) bar 1",
+                    "Sustain Ab triad (Ab2-C3-Eb3, whole notes vel 45-55) bar 2"
+                ],
+                "voiceLeading": [
+                    "stepwise ascent C3-Eb3-G3 in harmony to melody C4-Eb4-G4"
+                ],
+                "dynamics": [
+                    "pp (vel 40-60 overall) bars 1-2",
+                    "subtle cresc from bar 1 to 2"
+                ],
+                "polyphony": "\u22642 voices/channel",
+                "loop": "fade in to A"
+            },
+            {
+                "section": "A",
+                "bars": 4,
+                "bass": [
+                    "8ths C3-G3 (Cm root-5th, vel 70) bar 1",
+                    "8ths C3-G3 (Cm root-5th, vel 75) bar 2",
+                    "8ths Ab2-Eb3 (Ab root-5th, vel 80) bar 3",
+                    "8ths Eb3-Bb3 (Eb root-5th, vel 85) bar 4 beats 1-2",
+                    "16ths Bb2-F3-D4-F3 (Bb root-5th with passing, vel 90) bar 4 beats 3-4"
+                ],
+                "perc": [
+                    "Kick on 1+3 (vel 80), Snare on 2+4 (vel 85), Hi-hat 8ths (vel 60) bars 1-3",
+                    "Kick on 1 (vel 80), Snare roll 16ths beats 3-4 (vel 90) bar 4"
+                ],
+                "melody": [
+                    "Motif A: G4-F4-Eb4-D4 (bouncy 8ths, staccato vel 70-80) bar 1",
+                    "Bb4-A4-Ab4-G4 (bouncy 8ths, staccato vel 75-85) bar 2",
+                    "F4-Eb4-D4-C4 (bouncy 8ths, staccato vel 80-90) bar 3",
+                    "G4-F4-Eb4-D4 (bouncy 8ths, staccato vel 85-95) bar 4"
+                ],
+                "harmony": [
+                    "Sustain Cm triad (C3-Eb3-G3, half notes vel 60) bar 1",
+                    "Sustain Ab triad (Ab2-C3-Eb3, half notes vel 65) bar 2",
+                    "Sustain Eb triad (Eb3-G3-Bb3, half notes vel 70) bar 3",
+                    "Sustain Bb triad (Bb2-D3-F3, quarter notes vel 75) to Cm triad (C3-Eb3-G3, quarter notes vel 80) bar 4"
+                ],
+                "voiceLeading": [
+                    "descending stepwise G4-F4-Eb4-D4 in melody bar 1",
+                    "bass pulses C3-G3 on 8ths syncing with kick"
+                ],
+                "dynamics": [
+                    "mf (vel 60-80) bars 1-2",
+                    "crescendo to f (vel 80-100) bar 3",
+                    "peak f (vel 90-110) bar 4"
+                ],
+                "polyphony": "\u22642 voices/channel, no overlaps in harmony",
+                "loop": "build to B"
+            },
+            {
+                "section": "B",
+                "bars": 4,
+                "bass": [
+                    "8ths F2-C3 (Fm root-5th, vel 80) bar 1",
+                    "8ths Eb3-Bb3 (Eb root-5th, vel 85) bar 2",
+                    "8ths Bb2-F3 (Bb root-5th, vel 90) bar 3",
+                    "8ths G2-D3 (G root-5th, vel 95) bar 4 beats 1-2",
+                    "16ths C3-G3-Eb4-G3 (Cm root-5th with tension, vel 100) bar 4 beats 3-4"
+                ],
+                "perc": [
+                    "Kick on 1+3 (vel 90), Snare on 2+4 (vel 95), Hi-hat 16ths (vel 70) bars 1-3",
+                    "Snare fill (16ths rolls vel 100) beats 3-4 bar 4",
+                    "Extra cymbal crash on 1 bar 4 (vel 110)"
+                ],
+                "melody": [
+                    "Motif B call: C5-G4-Eb4 (quarters vel 90, legato) bar 1 beats 1-3",
+                    "Motif B response: Eb4-G4-C5 (quarters vel 95) bar 1 beat 4 to bar 2 beat 2",
+                    "Motif B call: F5-C5-Ab4 (quarters vel 100) bar 2 beat 3 to bar 3 beat 1",
+                    "Motif B response: Ab4-C5-F5 (quarters vel 105) bar 3 beats 2-4",
+                    "Motif B call: Bb5-F5-D5 (quarters vel 100) bar 4 beats 1-3",
+                    "Motif B response: D5-F5-Bb5 to C6 (quarters ascending vel 95) bar 4 beat 4"
+                ],
+                "harmony": [
+                    "Sustain Fm triad (F3-Ab3-C4, whole notes vel 80) bar 1",
+                    "Sustain Eb triad (Eb3-G3-Bb3, whole notes vel 85) bar 2",
+                    "Sustain Bb triad (Bb3-D4-F4, whole notes vel 90) bar 3",
+                    "Sustain G triad (G3-B3-D4, half notes vel 95) to Cm triad (C4-Eb4-G4, half notes vel 100) bar 4"
+                ],
+                "voiceLeading": [
+                    "call-response with octave leaps C5 to C4 in melody",
+                    "bass stepwise descent F2-Eb3-Bb2-G2 across bars"
+                ],
+                "dynamics": [
+                    "f (vel 90-110) bars 1-3",
+                    "decrescendo to mf (vel 70-90) bar 4"
+                ],
+                "polyphony": "\u22643 voices/channel for call-response",
+                "loop": "return to A"
+            },
+            {
+                "section": "Outro",
+                "bars": 2,
+                "bass": [
+                    "Half notes C3-G3 (Cm root-5th, vel 60) bar 1",
+                    "Half notes Ab2-Eb3 (Ab root-5th, vel 50) bar 2"
+                ],
+                "perc": [
+                    "Kick on 1 (vel 60 fading to 40) bars 1-2",
+                    "Hi-hat quarters (vel 50 fading to 30) bars 1-2",
+                    "Gradual fade all perc vol over bars 1-2"
+                ],
+                "melody": [
+                    "Motif Outro: C4-Eb4-G4 (arpeggio slowed to half notes vel 55) bar 1",
+                    "C5 hold (whole note vel 50) bar 1 beat 4",
+                    "Ab4-C5-Eb5 (arpeggio slowed to half notes vel 45) bar 2",
+                    "Ab5 hold (whole note vel 40) bar 2 beat 4"
+                ],
+                "harmony": [
+                    "Sustain Cm triad (C3-Eb3-G3, whole notes vel 40 fading) bar 1",
+                    "Sustain Ab triad (Ab2-C3-Eb3, whole notes vel 35 fading) bar 2"
+                ],
+                "voiceLeading": [
+                    "slowed stepwise ascent C3-Eb3-G3 mirroring motif"
+                ],
+                "dynamics": [
+                    "mp (vel 50-70) bar 1",
+                    "decresc to pp (vel 30-50) bar 2"
+                ],
+                "polyphony": "\u22642 voices/channel",
+                "loop": "fade out"
+            }
+        ]
     }
 }

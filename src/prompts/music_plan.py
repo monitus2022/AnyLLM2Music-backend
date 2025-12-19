@@ -108,30 +108,46 @@ User specified parameters:
 # Step 3: Rtythm generation ---------------------------------------------
 
 RHYTHM_OUTPUT_FORMAT = {
-    "section": "A",
-    "bars": 8,
-    "bass": ["8ths D-G (Dm root-5th) bars 1-6", "sync 16ths D-G-A-G bars 7-8"],
-    "perc": ["Kick on 1, Snare on 2+4, Hi-hat 8ths bars 1-7; snare fill (snare 16ths) bar 8"],
-    "melody": ["Motif A: C-Db-D-Eb (rising chromatic, 8ths) bars 1-2,5-6", "Motif B: Eb-D-C-Bb (descending, quarters) bars 3-4,7-8"],
-    "harmony": ["Sustain Dm triad (D-F-A) bars 1-6", "Bb triad (Bb-D-F) bar 7", "crescendo bar 7"],
-    "voiceLeading": ["stepwise D-E-F in bass", "leaps Eb-C in melody"],
-    "dynamics": ["mf (vel 60-80) bars 1-4", "crescendo (vel 80-100) bar 7", "f (vel 90-110) bar 8"],
-    "polyphony": "≤2 voices/channel, no overlaps in harmony",
-    "loop": "resolves to Em, repeat or transition to B",
+    "sections": [
+        {
+            "section": "Intro",
+            "bars": 2,
+            "bass": ["8ths C-G (Cm root-5th) bars 1-2"],
+            "perc": ["Kick on 1, Hi-hat 8ths bars 1-2"],
+            "melody": ["Motif Intro: C-Eb-G-C (arpeggio, 8ths) bars 1-2"],
+            "harmony": ["Sustain Cm triad (C-Eb-G) bars 1-2"],
+            "voiceLeading": ["stepwise C-Eb-G"],
+            "dynamics": ["pp (vel 40-60) bars 1-2"],
+            "polyphony": "≤2 voices/channel",
+            "loop": "fade to A"
+        },
+        {
+            "section": "A",
+            "bars": 8,
+            "bass": ["8ths D-G (Dm root-5th) bars 1-6", "sync 16ths D-G-A-G bars 7-8"],
+            "perc": ["Kick on 1, Snare on 2+4, Hi-hat 8ths bars 1-7; snare fill (snare 16ths) bar 8"],
+            "melody": ["Motif A: C-Db-D-Eb (rising chromatic, 8ths) bars 1-2,5-6", "Motif B: Eb-D-C-Bb (descending, quarters) bars 3-4,7-8"],
+            "harmony": ["Sustain Dm triad (D-F-A) bars 1-6", "Bb triad (Bb-D-F) bar 7", "crescendo bar 7"],
+            "voiceLeading": ["stepwise D-E-F in bass", "leaps Eb-C in melody"],
+            "dynamics": ["mf (vel 60-80) bars 1-4", "crescendo (vel 80-100) bar 7", "f (vel 90-110) bar 8"],
+            "polyphony": "≤2 voices/channel, no overlaps in harmony",
+            "loop": "resolves to Em, repeat or transition to B"
+        }
+    ]
 }
 
 MUSIC_CHORDS_INPUT = """<No chord input is provided from previous steps.>"""
 
 DEFINE_RHYTHM_PROMPT = f"""
 You are a music arranger.
-Given the harmonic backbone below, expand into rhythmic and expressive detail in compact JSON.
+Given the harmonic backbone below, expand into rhythmic and expressive detail for ALL sections in compact JSON.
 Reference specific pitches from chords and motifs. Include basic patterns for percussion (e.g., kick on beat 1, snare on 2+4).
 Ensure details are sufficient for direct note event creation without further inference—include pitches, durations, and velocities where possible.
 
 Output format:
 ---------------
 {str(RHYTHM_OUTPUT_FORMAT)}
-Do not regenerate chords—only add rhythmic/expression detail.
+Do not regenerate chords—only add rhythmic/expression detail for each section.
 
 Backbone:
 {MUSIC_CHORDS_INPUT}

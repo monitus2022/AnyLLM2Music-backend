@@ -6,12 +6,14 @@ from openai.types.chat import ChatCompletion
 from ..logger import app_logger
 from ..schemas.openrouter import PromptRequest, CompletionKwargs
 import json
+from ..utils import timeit
 
 
 class MusicPlanService:
     def __init__(self, llm_service: LlmService):
         self.llm_service = llm_service
 
+    @timeit
     def generate_music_plan_given_description(
         self,
         description: str,
@@ -37,6 +39,7 @@ class MusicPlanService:
         app_logger.info("Music plan generation completed")
         return response
 
+    @timeit
     def generate_music_chords_given_plan(
         self, music_plan: str, music_parameters: Optional[dict] = None, model: str = None, kwargs: dict = None
     ) -> Optional[ChatCompletion]:
@@ -56,6 +59,7 @@ class MusicPlanService:
         app_logger.info("Music chords generation completed")
         return response
 
+    @timeit
     def generate_music_rhythm_given_chords(
         self, music_chords: str, music_parameters: Optional[dict] = None, model: str = None, kwargs: dict = None
     ) -> Optional[ChatCompletion]:
