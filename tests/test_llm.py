@@ -16,7 +16,10 @@ def test_llm_service_initialization_openrouter(mocked_client):
 
 def test_prompt_llm_openrouter(mocked_client):
     service = LlmService(llm_provider="openrouter")
-    mocked_response = {"choices": [{"message": {"content": "Test response"}}]}
+    mocked_response = Mock()
+    mocked_response.choices = [Mock()]
+    mocked_response.choices[0].message = Mock()
+    mocked_response.choices[0].message.content = "Test response"
     mocked_client.chat.completions.create.return_value = mocked_response
 
     mocked_user_messages = "Hello, LLM!"
@@ -41,7 +44,7 @@ def test_prompt_llm_openrouter(mocked_client):
         ],
         **mocked_config
     )
-    assert response == mocked_response
+    assert response == "Test response"
 
 def test_llm_service_unsupported_provider():
     mocked_provider = "unsupported_llm"

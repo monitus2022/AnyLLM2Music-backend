@@ -4,7 +4,7 @@ from ..config import app_settings
 from ..prompts.base import HEALTH_CHECK_PROMPT
 from ..logger import app_logger
 from ..schemas.openrouter import PromptRequest
-from typing import Optional
+from typing import Optional, Union
 
 
 class LlmService:
@@ -22,7 +22,7 @@ class LlmService:
         self,
         prompt_request: PromptRequest,
         return_full_response: bool = False,
-    ) -> ChatCompletion:
+    ) -> Union[str, ChatCompletion]:
         model = prompt_request.model
         app_logger.debug(f"Prompting LLM with model: {model}")
 
