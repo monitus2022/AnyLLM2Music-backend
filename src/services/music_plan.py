@@ -5,6 +5,7 @@ from typing import Optional
 from openai.types.chat import ChatCompletion
 from ..logger import app_logger
 from ..schemas.openrouter import PromptRequest, CompletionKwargs
+from ..schemas.music import MusicPlan, MusicChords, MusicRhythm
 import json
 from ..utils import timeit
 

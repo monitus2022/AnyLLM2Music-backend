@@ -1,33 +1,33 @@
 # Step 1: Music Plan ---------------------------------------------
 
 MUSIC_PLAN_OUTPUT_FORMAT = {
-    "1_genre_style": "Retro 8-bit chiptune with NES/SNES influences (square waves, limited polyphony)",
-    "2_mood_emotion": "Tense and energetic battle atmosphere, building urgency and triumph",
-    "3_tempo_feel": {"bpm": 160, "meter": "4/4", "feel": "Straight 8ths with swing on percussion"},
-    "4_key_tonality": "C minor (Aeolian mode, with occasional Phrygian inflections)",
-    "5_instruments": [
+    "genre_style": "Retro 8-bit chiptune with NES/SNES influences (square waves, limited polyphony)",
+    "mood_emotion": "Tense and energetic battle atmosphere, building urgency and triumph",
+    "tempo_feel": {"bpm": 160, "meter": "4/4", "feel": "Straight 8ths with swing on percussion"},
+    "key_tonality": "C minor (Aeolian mode, with occasional Phrygian inflections)",
+    "instruments": [
         {"name": "Square Wave Lead", "role": "melody"},
         {"name": "Triangle Wave", "role": "bass"},
         {"name": "Noise Channel", "role": "percussion"},
         {"name": "DPCM Saw Pad", "role": "harmony/pad"},
     ],
-    "6_structure": [
+    "structure": [
         {"section": "Intro", "bars": 4, "transition": "fade in to A"},
         {"section": "A", "bars": 8, "transition": "build to B"},
         {"section": "B", "bars": 8, "transition": "tension release to A or bridge"},
         {"section": "Bridge", "bars": 4, "transition": "half-time feel to outro"},
         {"section": "Outro", "bars": 4, "transition": "fade out"},
     ],
-    "7_motivic_ideas": {
+    "motivic_ideas": {
         "Intro": "Motif1: Rising chromatic tension (C-Db-D-Eb)",
         "A": "Motif2: Staccato arpeggio ascent (C-Eb-G-Bb), Motif1 echoes",
         "B": "Motif3: Descending scale run (G-F-Eb-D-C), counterpoint with Motif2",
         "Bridge": "Motif4: Dissonant cluster (Ab-Bb-C-Db)",
         "Outro": "Motif1 inverted + resolve to C",
     },
-    "8_dynamic_contour": "pp intro (build tension) → mf A (steady energy) → f B (climax) → mp bridge (release) → p outro (fade)",
-    "9_length_scale": {"total_bars": 28, "duration_seconds": "approx 42s at 160 BPM"},
-    "10_looping_behavior": "Seamless loop from end of A back to A; outro optional for full playthrough",
+    "dynamic_contour": "pp intro (build tension) → mf A (steady energy) → f B (climax) → mp bridge (release) → p outro (fade)",
+    "length_scale": {"total_bars": 28, "duration_seconds": "approx 42s at 160 BPM"},
+    "looping_behavior": "Seamless loop from end of A back to A; outro optional for full playthrough",
 }
 
 MUSIC_PLAN_USER_DESCRIPTION = """<User didn't input any description>"""

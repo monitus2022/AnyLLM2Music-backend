@@ -17,20 +17,35 @@ class LlmService:
             )
         else:
             raise ValueError(f"Unsupported LLM provider: {self.llm_provider}")
+        self.free_model_only = False if app_settings.openrouter_default_model else True
 
     def prompt_llm(
         self,
         prompt_request: PromptRequest,
         return_full_response: bool = False,
     ) -> Union[str, ChatCompletion]:
+        """
+        Prompt LLM with Request body, optional to return everything in response
+        
+        :param prompt_request: Prompt Request body
+        :param return_full_response: Return additional info from response body or not
+        :return: Response text only or full completion
+        """
+        
         model = prompt_request.model
         app_logger.debug(f"Prompting LLM with model: {model}")
-
         if not model:
-            app_logger.debug(
-                f"No model specified, using default model: {app_settings.openrouter_default_free_model}"
-            )
-            model = app_settings.openrouter_default_free_model
+            if self.free_model_only:
+                model = app_settings.openrouter_default_free_model
+                app_logger.debug(
+                    f"No model specified, using default free model: {model}"
+                )
+            else:
+                model = app_settings.openrouter_default_model     
+                app_logger.debug(
+                    f"No model specified, using default model: {model}"
+                )
+        
         if self.llm_provider != "openrouter":
             raise ValueError(f"Unsupported LLM provider: {self.llm_provider}")
         kwargs_dict = prompt_request.kwargs.model_dump(exclude_unset=True)
@@ -41,6 +56,7 @@ class LlmService:
                 {"role": "user", "content": prompt_request.user_messages},
                 {"role": "system", "content": prompt_request.system_messages},
             ],
+            temperature=0.6,
             **kwargs_dict,
         )
 
