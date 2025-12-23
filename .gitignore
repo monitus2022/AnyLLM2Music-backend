@@ -6,3 +6,9 @@ __pycache__/
 *.log
 testing.*
 .pytest_cache/
+
+# Audio related files
+*.mid
+*.wav
+*.mp3
+*.sf2
