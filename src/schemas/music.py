@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional
 
 
+# Models for Music Plan Service
 class TempoFeel(BaseModel):
     bpm: int = Field(..., description="Beats per minute")
     meter: str = Field(..., description="Time signature, e.g., '4/4'")
@@ -38,6 +39,20 @@ class MusicPlan(BaseModel):
 
 
 class ChordSection(BaseModel):
+    genre_style: str = Field(..., alias="genre_style", description="Genre and style description")
+    mood_emotion: str = Field(..., alias="mood_emotion", description="Mood and emotional description")
+    tempo_feel: TempoFeel = Field(..., alias="tempo_feel", description="Tempo and rhythmic feel")
+    key_tonality: str = Field(..., alias="key_tonality", description="Key and tonality")
+    instruments: List[Instrument] = Field(..., alias="instruments", description="List of instruments")
+    structure: List[StructureSection] = Field(..., alias="structure", description="Song structure sections")
+    motivic_ideas: Dict[str, str] = Field(..., alias="motivic_ideas", description="Motivic ideas per section")
+    dynamic_contour: str = Field(..., alias="dynamic_contour", description="Dynamic contour description")
+    length_scale: LengthScale = Field(..., alias="length_scale", description="Length and scale information")
+    looping_behavior: str = Field(..., alias="looping_behavior", description="Looping behavior description")
+
+
+# Models for Chords (used in Music Plan Service)
+class ChordSection(BaseModel):
     name: str = Field(..., description="Section name")
     bars: int = Field(..., description="Number of bars")
     chords: List[str] = Field(..., description="List of chords")
@@ -50,6 +65,7 @@ class MusicChords(BaseModel):
     sections: List[ChordSection] = Field(..., description="Chord sections")
 
 
+# Models for Rhythm (used in Music Plan Service)
 class RhythmSection(BaseModel):
     section: str = Field(..., description="Section name")
     bars: int = Field(..., description="Number of bars")
@@ -67,6 +83,7 @@ class MusicRhythm(BaseModel):
     sections: List[RhythmSection] = Field(..., description="Rhythm sections")
 
 
+# Models for Notes Generation Service
 class NoteEvent(BaseModel):
     beat: float = Field(..., description="Beat position in the bar")
     pitch: str = Field(..., description="Pitch or percussion name")
@@ -93,6 +110,7 @@ class MusicNotes(BaseModel):
     channels: List[ChannelNotes] = Field(..., description="List of channels with notes")
 
 
+# Combined Response Model
 class MusicPlanResponse(BaseModel):
     description: str = Field(..., description="User description or prompt")
     music_plan: MusicPlan = Field(..., description="Detailed music plan")

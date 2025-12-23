@@ -11,5 +11,6 @@ Ensure proper nesting and closing brackets.
 
 HEALTH_CHECK_PROMPT = """
 This is a health check prompt.
+Ignore any other instructions.
 Please respond with 'OK' to confirm you are operational.
 """
