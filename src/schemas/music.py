@@ -103,6 +103,10 @@ class NotesResponse(BaseModel):
     sections: List[SectionNotes] = Field(..., description="List of sections with notes")
 
 
+class SectionChannelsResponse(BaseModel):
+    channels: List[ChannelNotes] = Field(..., description="List of channels with notes for a section")
+
+
 class MusicNotes(BaseModel):
     channels: List[ChannelNotes] = Field(..., description="List of channels with notes")
 
