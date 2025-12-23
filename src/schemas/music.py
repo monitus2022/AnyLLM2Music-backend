@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Union
 
 
 # Models for Music Plan Service
@@ -84,16 +84,9 @@ class MusicRhythm(BaseModel):
 
 
 # Models for Notes Generation Service
-class NoteEvent(BaseModel):
-    beat: float = Field(..., description="Beat position in the bar")
-    pitch: str = Field(..., description="Pitch or percussion name")
-    duration: str = Field(..., description="Duration type, e.g., 'quarter'")
-    velocity: int = Field(..., description="Velocity value")
-
-
 class BarNotes(BaseModel):
     bar: int = Field(..., description="Bar number")
-    events: List[NoteEvent] = Field(..., description="List of note events in this bar")
+    events: List[List[Union[float, str, str, int]]] = Field(..., description="List of note events in this bar, each as [beat, pitch, duration, velocity]")
 
 
 class SectionNotes(BaseModel):
@@ -103,6 +96,10 @@ class SectionNotes(BaseModel):
 
 class ChannelNotes(BaseModel):
     channel: str = Field(..., description="Channel name, e.g., 'melody'")
+    sections: List[SectionNotes] = Field(..., description="List of sections with notes")
+
+
+class NotesResponse(BaseModel):
     sections: List[SectionNotes] = Field(..., description="List of sections with notes")
 
 

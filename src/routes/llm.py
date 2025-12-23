@@ -30,9 +30,10 @@ def create_music_rhythm(description: str, model: Optional[str] = None, kwargs: d
     :param model: LLM model to use
     :param kwargs: Additional kwargs for LLM prompting
     """
-    return music_plan_service.generate_music_rhythm_given_description(
+    music_plan, rhythm_response = music_plan_service.generate_music_rhythm_given_description(
         description=description, model=model, kwargs=kwargs
     )
+    return rhythm_response
 
 def create_music_notes(description: str, model: Optional[str] = None, kwargs: dict = None):
     """
@@ -43,17 +44,36 @@ def create_music_notes(description: str, model: Optional[str] = None, kwargs: di
     :param kwargs: Additional kwargs for LLM prompting
     """
     # First generate the full plan
-    rhythm_response = music_plan_service.generate_music_rhythm_given_description(
+    music_plan, rhythm_response = music_plan_service.generate_music_rhythm_given_description(
         description=description, model=model, kwargs=kwargs
     )
     if not rhythm_response:
         return None
-    # Load the saved plan
-    import json
-    with open("music_plan.json", "r") as f:
-        plan_data = json.load(f)
-    music_plan = plan_data["music_plan"]
-    music_rhythm = plan_data["music_rhythm"]
+
     return notes_gen_service.generate_all_channel_notes(
-        music_plan=music_plan, music_rhythm=music_rhythm, model=model, kwargs=kwargs
+        music_plan=music_plan, music_rhythm=rhythm_response, model=model, kwargs=kwargs
     )
+
+def create_music_notes_with_cache(
+        model: Optional[str] = None, kwargs: dict = None
+):
+    """
+    Create music notes given description (generates full plan first).
+    Using cache json file to skip previous prompting
+    Only used in testing purpose
+
+    :param description: Text description of the music piece
+    :param model: LLM model to use
+    :param kwargs: Additional kwargs for LLM prompting
+    """
+    import json
+    from ..schemas.music import MusicPlanResponse
+    with open("music_plan.json", "r") as f:
+        music_plan_full_content: dict = json.load(f)
+    music_plan_response: MusicPlanResponse = MusicPlanResponse.model_validate(music_plan_full_content)
+
+    return notes_gen_service.generate_all_channel_notes(
+        music_plan=music_plan_response.music_plan, 
+        music_rhythm=music_plan_response.music_rhythm, 
+        model=model, kwargs=kwargs
+    )    

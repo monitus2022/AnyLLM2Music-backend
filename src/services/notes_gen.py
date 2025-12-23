@@ -5,7 +5,7 @@ from typing import Optional, Dict, List
 from openai.types.chat import ChatCompletion
 from ..logger import app_logger
 from ..schemas.openrouter import PromptRequest, CompletionKwargs
-from ..schemas.music import SectionNotes, ChannelNotes, MusicNotes
+from ..schemas.music import MusicPlan, MusicRhythm, SectionNotes, ChannelNotes, MusicNotes, NotesResponse
 import json
 from ..utils import timeit
 import concurrent.futures
@@ -19,42 +19,42 @@ class NotesGenService:
     def generate_single_channel_notes_given_music_rhythm(
             self,
             channel: str,
-            music_plan: Dict[str, any],
-            music_rhythm: Dict[str, any],
+            music_plan: MusicPlan,
+            music_rhythm: MusicRhythm,
             model: str = None,
             kwargs: dict = None
     ) -> Optional[ChannelNotes]:
         app_logger.info(f"Generating notes for channel: {channel}")
         prompt = generate_note_events_prompt(
-            channel, json.dumps(music_rhythm), json.dumps(music_plan))
-        
-        if not kwargs or not kwargs.get("max_tokens", None):
-            kwargs["max_tokens"] = 4096                  # Extend default token size
+            channel=channel,
+            rhythm_input=music_rhythm.model_dump_json(),
+            music_plan_input=music_plan.model_dump_json()
+        )
         completion_kwargs = CompletionKwargs(
+            max_tokens=8192,
             **(kwargs or {})
         )
         prompt_request = PromptRequest(
             user_messages=prompt,
             system_messages=BASE_CONTEXT_PROMPT,
             model=model,
-            response_format=ChannelNotes,
+            response_format=NotesResponse,
             kwargs=completion_kwargs,
         )
         response = self.llm_service.prompt_llm(prompt_request)
-        if not response:
-            app_logger.error(f"Failed to generate notes for channel {channel}")
-            return None
-        return response
+        if response:
+            return ChannelNotes(channel=channel, sections=response.sections)
+        return None
 
     @timeit
     def generate_all_channel_notes(
-        self, 
-        music_plan: Dict[str, any], 
-        music_rhythm: Dict[str, any], 
-        model: str = None, 
-        kwargs: dict = None) -> Optional[MusicNotes]:
-        channels = [inst["name"] for inst in music_plan.get("instruments", [])] if isinstance(
-            music_plan.get("instruments", []), list) else []
+            self,
+            music_plan: MusicPlan,
+            music_rhythm: MusicRhythm,
+            model: str = None,
+            kwargs: dict = None) -> Optional[MusicNotes]:
+        channels = [inst.name for inst in music_plan.instruments] if isinstance(
+            music_plan.instruments, list) else []
         if not channels:
             channels = ALL_CHANNELS  # fallback
             app_logger.warning(
@@ -79,7 +79,12 @@ class NotesGenService:
             app_logger.error("Failed to generate notes for any channel")
             return None
 
-        return MusicNotes(channels=channel_notes)
+        result = MusicNotes(channels=channel_notes)
+
+        with open("music_notes.json", "w") as f:
+            json.dump(result, f, indent=4)
+        
+        return result
 
 
 notes_gen_service = NotesGenService(llm_service=llm_service)
