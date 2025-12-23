@@ -21,7 +21,7 @@ class LlmService:
     def prompt_llm(
         self,
         prompt_request: PromptRequest,
-    ) -> Union[str, ChatCompletion]:
+    ) -> Optional[BaseModel]:
         """
         Prompt LLM with Request body, optional to return everything in response
 
@@ -56,10 +56,10 @@ class LlmService:
         kwargs_dict = prompt_request.kwargs.model_dump(exclude_unset=True)
 
         # Init client
-        self.client = OpenAI(
-            base_url=app_settings.openrouter_api_key,
-            api_key=app_settings.openrouter_url
-        )
+        # self.client = OpenAI(
+        #     api_key=app_settings.openrouter_api_key,
+        #     base_url=app_settings.openrouter_url
+        # )
 
         # Wrap with instructor client
         self.client: instructor.Instructor = instructor.from_provider(
@@ -86,7 +86,7 @@ class LlmService:
             return response
         except Exception as e:
             app_logger.error(f"Error parsing LLM response: {e}")
-            raise e
+            return None
 
     def health_check(self, model: Optional[str] = None):
         app_logger.info(f"Performing health check for model: {model}")

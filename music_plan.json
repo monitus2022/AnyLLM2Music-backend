@@ -1,29 +1,29 @@
 {
-    "description": "8bit music",
+    "description": "8 bit music",
     "music_plan": {
         "genre_style": "8-bit chiptune",
         "mood_emotion": "energetic",
         "tempo_feel": {
             "bpm": 120,
             "meter": "4/4",
-            "feel": "straight 8ths with punchy percussion"
+            "feel": "straight 8ths"
         },
         "key_tonality": "C minor",
         "instruments": [
             {
-                "name": "Square Wave Lead",
+                "name": "Square Lead",
                 "role": "melody"
             },
             {
-                "name": "Triangle Wave",
+                "name": "Triangle",
                 "role": "bass"
             },
             {
-                "name": "Noise Channel",
+                "name": "Noise",
                 "role": "percussion"
             },
             {
-                "name": "Square Wave 2",
+                "name": "Pulse Width",
                 "role": "harmony"
             }
         ],
@@ -50,17 +50,17 @@
             }
         ],
         "motivic_ideas": {
-            "Intro": "Rising arpeggio",
-            "A": "Main riff: staccato C-Eb-G pattern",
-            "B": "Counter melody: descending Eb-G-C",
-            "Outro": "Echo of A motif"
+            "Intro": "rising arpeggio",
+            "A": "staccato melody riff",
+            "B": "call-response pattern",
+            "Outro": "melody resolve"
         },
-        "dynamic_contour": "pp to f build-up",
+        "dynamic_contour": "pp to f build, steady mf loop, p fade",
         "length_scale": {
             "total_bars": 20,
             "duration_seconds": "30s"
         },
-        "looping_behavior": "Loop A and B sections"
+        "looping_behavior": "loop A-B-A"
     },
     "music_chords": {
         "key": "C minor",
@@ -70,7 +70,9 @@
                 "bars": 2,
                 "chords": [
                     "Cm",
-                    "G"
+                    "G",
+                    "Ab",
+                    "Bb"
                 ],
                 "motifs": {
                     "Intro": [
@@ -85,13 +87,13 @@
                 "bars": 8,
                 "chords": [
                     "Cm",
+                    "Ab",
                     "Eb",
                     "Bb",
-                    "G",
                     "Cm",
-                    "Eb",
-                    "Bb",
-                    "G"
+                    "Fm",
+                    "G",
+                    "Cm"
                 ],
                 "motifs": {
                     "A": [
@@ -111,14 +113,14 @@
                 "name": "B",
                 "bars": 8,
                 "chords": [
-                    "Ab",
                     "Fm",
-                    "Cm",
                     "Eb",
-                    "Ab",
-                    "Fm",
+                    "Bb",
+                    "G",
                     "Cm",
-                    "Eb"
+                    "Ab",
+                    "Eb",
+                    "Bb"
                 ],
                 "motifs": {
                     "B": [
@@ -139,7 +141,7 @@
                 "bars": 2,
                 "chords": [
                     "Cm",
-                    "Bb"
+                    "G"
                 ],
                 "motifs": {
                     "Outro": [
@@ -157,134 +159,131 @@
                 "section": "Intro",
                 "bars": 2,
                 "bass": [
-                    "8ths C3-G3 (Cm root-5th) bar 1",
-                    "8ths G2-D3 (G root-5th) bar 2"
+                    "16ths C3-G3-C3-G3 (Cm/G root-5th) bar 1",
+                    "16ths Ab2-Eb3-Ab2-Eb3 (Ab root-5th), Bb2-F3-Bb2-F3 (Bb root-5th) bar 2"
                 ],
                 "perc": [
-                    "Kick on 1+3 (vel 100) bars 1-2",
-                    "Hi-hat 8ths (vel 70) bars 1-2"
+                    "kick (low noise burst) on 1+3, snare (high noise) on 2+4, hihat (short noise) 16ths bars 1-2"
                 ],
                 "melody": [
-                    "Arp C4-Eb4-G4-C5 (16ths, vel 80) bar 1",
-                    "Arp G4-B4-D5-G4 (16ths, vel 90) bar 2"
+                    "Motif Intro: C4-Eb4-G4-Ab4 (rising arpeggio 16ths, portamento) bar 1",
+                    "Bb4-C5-D5-Eb5 (chiptune slide up 8ths) bar 2"
                 ],
                 "harmony": [
-                    "Sustain Cm triad C3-Eb3-G3 (whole notes, vel 60) bar 1",
-                    "Sustain G triad G2-B2-D3 (whole notes, vel 70) bar 2"
+                    "pulse Cm/G (C-Eb-G, G-Bb-D 16ths vel 70) bar 1",
+                    "Ab/Bb (Ab-C-Eb, Bb-D-F arps 16ths) bar 2"
                 ],
                 "voiceLeading": [
-                    "Bass stepwise C3 to G2",
-                    "Melody smooth arp asc/desc"
+                    "stepwise bass C-G-Ab-Bb",
+                    "melody leaps G4-Ab4, smooth slides"
                 ],
                 "dynamics": [
-                    "p (vel 50-70) bar 1",
-                    "cresc to mf (vel 70-90) bar 2"
+                    "mp (vel 50-70) bar 1",
+                    "mf (vel 70-90) bar 2"
                 ],
-                "polyphony": "\u22642 voices/channel",
+                "polyphony": "2 voices (triangle bass, square melody/harmony)",
                 "loop": "build to A"
             },
             {
                 "section": "A",
                 "bars": 8,
                 "bass": [
-                    "8ths C3-G3 (Cm) bars 1,5",
-                    "8ths Eb3-Bb3 (Eb) bars 2,6",
-                    "8ths Bb2-F3 (Bb) bars 3,7",
-                    "16ths G2-D3-G2-D3 (G) bars 4,8"
+                    "8ths C3 (Cm) bar1, Ab2 (Ab) bar2, Eb3 (Eb) bar3, Bb2 (Bb) bar4",
+                    "8ths C3 (Cm) bar5, F2 (Fm) bar6, G2 (G) bar7, C3 (Cm) bar8"
                 ],
                 "perc": [
-                    "Kick on 1+3 (vel 110) bars 1-8",
-                    "Snare on 2+4 (vel 100) bars 1-8",
-                    "Hi-hat 8ths open (vel 80) bars 1-7",
-                    "Snare fill 16ths bars 7-8"
+                    "kick on 1+3.5, snare on 2+4, hihat 8ths; 16th fills bar8"
                 ],
                 "melody": [
-                    "Motif A: C4-Db4-Eb4-F4 (chromatic rise 8ths vel 90) bars 1-2,5-6",
-                    "Eb4-D4-C4-Bb3 (descend quarters vel 100) bars 3-4",
-                    "Repeat motif A bars 5-6",
-                    "G4-F4-Eb4-D4 (descend 8ths) bars 7-8"
+                    "Motif A: Eb4-F4-G4-Ab4 (rising chromatic 8ths) bars1-2,4",
+                    "G4-F4-Eb4-D4 (descending quarters) bars3,5-6",
+                    "Bb4-C5-Bb4-Ab4 (syncopated 16ths) bars7-8"
                 ],
                 "harmony": [
-                    "Cm triad C3-Eb3-G3 (half notes vel 70) bars 1,5",
-                    "Eb triad Eb3-G3-Bb3 (half notes vel 75) bars 2,6",
-                    "Bb triad Bb2-D3-F3 (half notes vel 80) bars 3,7",
-                    "G triad G2-B2-D3 (sync 8ths vel 85) bars 4,8"
+                    "sustain Cm (C3-Eb3-G3 quarters) bar1",
+                    "Ab (Ab2-C3-Eb3) bar2",
+                    "Eb (Eb3-G3-Bb3) bar3",
+                    "Bb (Bb2-D3-F3) bar4",
+                    "Cm bar5",
+                    "Fm (F2-Ab2-C3) bar6",
+                    "G (G2-B2-D3) bar7",
+                    "Cm crescendo bar8"
                 ],
                 "voiceLeading": [
-                    "Bass root motion stepwise C-Eb-Bb-G",
-                    "Melody leaps <4th, common tones Eb-G"
+                    "bass roots stepwise where poss C-Ab-Eb-Bb-C-F-G-C",
+                    "melody common tones Eb-G between chords"
                 ],
                 "dynamics": [
-                    "mf (vel 70-90) bars 1-4",
-                    "cresc f (vel 90-110) bars 5-8"
+                    "mf (vel 60-80) bars1-4",
+                    "cresc to f (vel 80-110) bars5-8"
                 ],
-                "polyphony": "\u22643 voices/channel, triangle pad harmony",
+                "polyphony": "\u22642 voices/channel, square+triangle",
                 "loop": "to B"
             },
             {
                 "section": "B",
                 "bars": 8,
                 "bass": [
-                    "16ths Ab2-Eb3 (Ab) bars 1,5",
-                    "16ths F2-C3 (Fm) bars 2,6",
-                    "8ths C3-G3 (Cm) bars 3,7",
-                    "8ths Eb3-Bb3 (Eb) bars 4,8"
+                    "8ths F2 (Fm) bar1, Eb3 (Eb) bar2, Bb2 (Bb) bar3, G2 (G) bar4",
+                    "16ths C3-G2-C3-G2 (Cm) bar5, Ab2-Eb3 (Ab) bar6, Eb3-Bb3 (Eb) bar7, Bb2-F3 (Bb) bar8"
                 ],
                 "perc": [
-                    "Kick 1+3+ offbeat (vel 120) bars 1-8",
-                    "Snare 2+4 rolls 16ths end bar (vel 110) bars 1-8",
-                    "Hi-hat 16ths closed (vel 90) bars 1-8",
-                    "Crash bar 1,5 (vel 100)"
+                    "kick 1+3, snare 2+4 w/ghosts, hihat 16ths bars1-7; tom fill 16ths bar8"
                 ],
                 "melody": [
-                    "Motif B: Ab4-F4-Eb4-C4 (fall 8ths vel 100) bars 1-2,5-6",
-                    "Cm arp C5-Eb5-G5 (16ths) bars 3-4",
-                    "Eb5-G5-Bb5-Ab5 (16ths peak) bars 7-8"
+                    "Motif B: F4-Ab4-C5 (Fm arp 8ths) bars1,5",
+                    "Eb5-D5-C5-Bb4 (falling 8ths) bar2",
+                    "Bb4-A4-G4-F4 (scale desc) bars3-4",
+                    "G4-F4-Eb4-D4 (tension build) bars6-7, resolve C5 bar8"
                 ],
                 "harmony": [
-                    "Ab triad Ab2-C3-Eb3 (8ths arp vel 80) bars 1,5",
-                    "Fm triad F2-Ab2-C3 (8ths arp vel 85) bars 2,6",
-                    "Cm triad C3-Eb3-G3 (quarter sustains vel 90) bars 3,7",
-                    "Eb triad Eb3-G3-Bb3 (half notes vel 95) bars 4,8"
+                    "Fm (F-Ab-C pulse 16ths) bar1",
+                    "Eb (Eb-G-Bb) bar2",
+                    "Bb bar3",
+                    "G (G-B-D) bar4",
+                    "Cm bar5",
+                    "Ab bar6",
+                    "Eb bar7",
+                    "Bb ff bar8"
                 ],
                 "voiceLeading": [
-                    "Bass pulse 16ths Ab-F-C-Eb smooth",
-                    "Melody voice exchange Ab-C with harmony"
+                    "contrary motion bass-melody F up to C down",
+                    "smooth voice exchange Eb-Bb-G"
                 ],
                 "dynamics": [
-                    "f (vel 100-120) bars 1-4",
-                    "ff peak (vel 110-127) bars 5-8"
+                    "f (vel 90-110) bars1-4",
+                    "ff peak (vel 110-127) bars5-8 w/decay"
                 ],
-                "polyphony": "\u22644 voices/channel, pulse width mod",
+                "polyphony": "\u22643 voices briefly (add noise perc separate)",
                 "loop": "back to A"
             },
             {
                 "section": "Outro",
                 "bars": 2,
                 "bass": [
-                    "Quarters C3-Eb3-G3 hold (Cm) bar 1",
-                    "Quarters Bb2-D3-F3 fade (Bb) bar 2"
+                    "8ths C3-G3 fade bar1",
+                    "quarters G2 hold fade bar2"
                 ],
                 "perc": [
-                    "Kick on 1 (vel 80 dec) bars 1-2",
-                    "Hi-hat 8ths decay (vel 60-20) bars 1-2"
+                    "kick/snare sparse 1+2, hihat 8ths decay bars1-2"
                 ],
                 "melody": [
-                    "Cm arp C4-Eb4-G4 slow quarters vel 80 bar 1",
-                    "Bb motif Bb4-D5-F5-Bb4 (8ths fade vel 70-30) bar 2"
+                    "Motif Outro: G4-Eb4-C4 (desc arpeggio 8ths vel decay) bar1",
+                    "C4 hold w/vibrato bar2"
                 ],
                 "harmony": [
-                    "Cm triad sustain decay vel 60-20 bar 1",
-                    "Bb triad sustain decay vel 50-10 bar 2"
+                    "Cm triad (C-Eb-G) sustain w/ritard bar1",
+                    "G (G-B-D) dissolve bar2"
                 ],
                 "voiceLeading": [
-                    "Bass resolve C3 to Bb2",
-                    "Melody descend to Bb3"
+                    "resolve to Cm tonic stepwise",
+                    "final root G3-C3 no, G hold"
                 ],
                 "dynamics": [
-                    "mf decay to ppp (vel 80 to 20) bars 1-2"
+                    "mf (vel 80-60) bar1",
+                    "pp fade (vel 60->20) bar2"
                 ],
-                "polyphony": "\u22642 voices/channel",
+                "polyphony": "\u22642 voices, thinning",
                 "loop": "fade out"
             }
         ]

@@ -21,7 +21,7 @@ class MusicPlanService:
         music_parameters: Optional[dict] = None,
         model: str = None,
         kwargs: dict = None,
-    ) -> Optional[ChatCompletion]:
+    ) -> Optional[MusicPlan]:
         app_logger.info("Generating music plan from description")
         if not description:
             description = MUSIC_PLAN_USER_DESCRIPTION
@@ -48,15 +48,15 @@ class MusicPlanService:
     @timeit
     def generate_music_chords_given_plan(
         self, 
-        music_plan: str, 
+        music_plan: MusicPlan, 
         music_parameters: Optional[dict] = None, 
         model: str = None, 
         kwargs: dict = None
-    ) -> Optional[ChatCompletion]:
+    ) -> Optional[MusicChords]:
         app_logger.info("Generating music chords from music plan")
         if not music_parameters:
             music_parameters = MUSIC_PLAN_USER_PARAMETERS
-        prompt = DEFINE_CHORD_PROMPT.replace(MUSIC_PLAN_INPUT, music_plan).replace(
+        prompt = DEFINE_CHORD_PROMPT.replace(MUSIC_PLAN_INPUT, music_plan.model_dump_json()).replace(
             MUSIC_PLAN_USER_PARAMETERS, str(music_parameters)
         )
         completion_kwargs = CompletionKwargs(
@@ -76,15 +76,15 @@ class MusicPlanService:
     @timeit
     def generate_music_rhythm_given_chords(
         self, 
-        music_chords: str, 
+        music_chords: MusicChords, 
         music_parameters: Optional[dict] = None, 
         model: str = None, 
         kwargs: dict = None
-    ) -> Optional[ChatCompletion]:
+    ) -> Optional[MusicRhythm]:
         app_logger.info("Generating music rhythm from music chords")
         if not music_parameters:
             music_parameters = MUSIC_PLAN_USER_PARAMETERS
-        prompt = DEFINE_RHYTHM_PROMPT.replace(MUSIC_CHORDS_INPUT, music_chords).replace(
+        prompt = DEFINE_RHYTHM_PROMPT.replace(MUSIC_CHORDS_INPUT, music_chords.model_dump_json()).replace(
             MUSIC_PLAN_USER_PARAMETERS, str(music_parameters)
         )
         completion_kwargs = CompletionKwargs(
@@ -102,7 +102,11 @@ class MusicPlanService:
         return response
 
     def generate_music_rhythm_given_description(
-        self, description: str, music_parameters: Optional[dict] = None, model: str = None, kwargs: dict = None
+        self, 
+        description: str, 
+        music_parameters: Optional[dict] = None, 
+        model: str = None, 
+        kwargs: dict = None
     ) -> Optional[ChatCompletion]:
         music_plan = self.generate_music_plan_given_description(
             description=description, music_parameters=music_parameters, model=model, kwargs=kwargs
@@ -130,9 +134,9 @@ class MusicPlanService:
                 {
                     "description": description,
                     # Load json string to dict/list
-                    "music_plan": json.loads(music_plan),
-                    "music_chords": json.loads(music_chords),
-                    "music_rhythm": json.loads(rhythm_response),
+                    "music_plan": music_plan.model_dump(),
+                    "music_chords": music_chords.model_dump(),
+                    "music_rhythm": rhythm_response.model_dump()
                 },
                 f,
                 indent=4,
