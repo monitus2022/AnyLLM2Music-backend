@@ -25,16 +25,16 @@ class LengthScale(BaseModel):
 
 
 class MusicPlan(BaseModel):
-    genre_style: str = Field(..., alias="1_genre_style", description="Genre and style description")
-    mood_emotion: str = Field(..., alias="2_mood_emotion", description="Mood and emotional description")
-    tempo_feel: TempoFeel = Field(..., alias="3_tempo_feel", description="Tempo and rhythmic feel")
-    key_tonality: str = Field(..., alias="4_key_tonality", description="Key and tonality")
-    instruments: List[Instrument] = Field(..., alias="5_instruments", description="List of instruments")
-    structure: List[StructureSection] = Field(..., alias="6_structure", description="Song structure sections")
-    motivic_ideas: Dict[str, str] = Field(..., alias="7_motivic_ideas", description="Motivic ideas per section")
-    dynamic_contour: str = Field(..., alias="8_dynamic_contour", description="Dynamic contour description")
-    length_scale: LengthScale = Field(..., alias="9_length_scale", description="Length and scale information")
-    looping_behavior: str = Field(..., alias="10_looping_behavior", description="Looping behavior description")
+    genre_style: str = Field(..., alias="genre_style", description="Genre and style description")
+    mood_emotion: str = Field(..., alias="mood_emotion", description="Mood and emotional description")
+    tempo_feel: TempoFeel = Field(..., alias="tempo_feel", description="Tempo and rhythmic feel")
+    key_tonality: str = Field(..., alias="key_tonality", description="Key and tonality")
+    instruments: List[Instrument] = Field(..., alias="instruments", description="List of instruments")
+    structure: List[StructureSection] = Field(..., alias="structure", description="Song structure sections")
+    motivic_ideas: Dict[str, str] = Field(..., alias="motivic_ideas", description="Motivic ideas per section")
+    dynamic_contour: str = Field(..., alias="dynamic_contour", description="Dynamic contour description")
+    length_scale: LengthScale = Field(..., alias="length_scale", description="Length and scale information")
+    looping_behavior: str = Field(..., alias="looping_behavior", description="Looping behavior description")
 
 
 class ChordSection(BaseModel):
@@ -67,8 +67,35 @@ class MusicRhythm(BaseModel):
     sections: List[RhythmSection] = Field(..., description="Rhythm sections")
 
 
+class NoteEvent(BaseModel):
+    beat: float = Field(..., description="Beat position in the bar")
+    pitch: str = Field(..., description="Pitch or percussion name")
+    duration: str = Field(..., description="Duration type, e.g., 'quarter'")
+    velocity: int = Field(..., description="Velocity value")
+
+
+class BarNotes(BaseModel):
+    bar: int = Field(..., description="Bar number")
+    events: List[NoteEvent] = Field(..., description="List of note events in this bar")
+
+
+class SectionNotes(BaseModel):
+    section: str = Field(..., description="Section name")
+    bars: List[BarNotes] = Field(..., description="List of bars with notes")
+
+
+class ChannelNotes(BaseModel):
+    channel: str = Field(..., description="Channel name, e.g., 'melody'")
+    sections: List[SectionNotes] = Field(..., description="List of sections with notes")
+
+
+class MusicNotes(BaseModel):
+    channels: List[ChannelNotes] = Field(..., description="List of channels with notes")
+
+
 class MusicPlanResponse(BaseModel):
     description: str = Field(..., description="User description or prompt")
     music_plan: MusicPlan = Field(..., description="Detailed music plan")
     music_chords: MusicChords = Field(..., description="Chord progression plan")
     music_rhythm: MusicRhythm = Field(..., description="Rhythm and arrangement plan")
+    music_notes: Optional[MusicNotes] = Field(None, description="Generated note events")

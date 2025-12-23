@@ -5,6 +5,7 @@ from ..prompts.base import HEALTH_CHECK_PROMPT
 from ..logger import app_logger
 from ..schemas.openrouter import PromptRequest
 from typing import Optional, Union
+from pydantic import BaseModel
 
 
 class LlmService:
@@ -32,7 +33,9 @@ class LlmService:
         :return: Response text only or full completion
         """
         
+        # Define Model
         model = prompt_request.model
+
         app_logger.debug(f"Prompting LLM with model: {model}")
         if not model:
             if self.free_model_only:
@@ -48,15 +51,20 @@ class LlmService:
         
         if self.llm_provider != "openrouter":
             raise ValueError(f"Unsupported LLM provider: {self.llm_provider}")
+        
+        # Define output format
+        response_format = prompt_request.response_format or None
+
+        # Other params
         kwargs_dict = prompt_request.kwargs.model_dump(exclude_unset=True)
 
-        response: ChatCompletion = self.client.chat.completions.create(
+        response: ChatCompletion = self.client.chat.completions.parse(
             model=model,
             messages=[
                 {"role": "user", "content": prompt_request.user_messages},
                 {"role": "system", "content": prompt_request.system_messages},
             ],
-            temperature=0.6,
+            response_format=response_format,
             **kwargs_dict,
         )
 
