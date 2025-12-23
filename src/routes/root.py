@@ -1,11 +1,25 @@
 from fastapi import APIRouter
+from .llm import llm_health, create_music_plan, create_music_rhythm, create_music_notes
 
 router = APIRouter()
 
 @router.get("/")
 def read_root():
-    return {"message": "Welcome to Template FastAPI"}
+    return {"app": "AnyLLM2Music"}
 
 @router.get("/health")
 def health_check():
     return {"status": "healthy"}
+
+for r in [
+    llm_health,
+    create_music_plan,
+    create_music_rhythm,
+    create_music_notes,
+    ]:
+    router.add_api_route(
+        path="/" + r.__name__,
+        endpoint=r,
+        methods=["GET"],
+        tags=["LLM Service"],
+    )
