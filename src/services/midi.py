@@ -1,4 +1,5 @@
 import os
+import logging
 from mido import MidiFile, MidiTrack, Message, MetaMessage, bpm2tempo
 from src.schemas.music import MusicNotes, ChannelNotes, SectionNotes, BarNotes
 
@@ -24,8 +25,11 @@ PERCUSSION_MAP = {
     'tom6': 50,    # High Tom
 }
 
-def pitch_to_midi(pitch_str: str, is_percussion: bool = False) -> int:
-    """Convert pitch string like 'C4' or 'Eb4' to MIDI note number."""
+def pitch_to_midi(pitch_str, is_percussion: bool = False) -> int:
+    """Convert pitch string like 'C4' or 'Eb4' to MIDI note number, or return int if already MIDI."""
+    if isinstance(pitch_str, int):
+        return pitch_str
+
     if pitch_str == 'rest':
         return -1  # Special case for rest
 
@@ -77,14 +81,22 @@ def duration_to_ticks(duration_str: str, bpm: int = DEFAULT_BPM) -> int:
     # Assuming 4/4 time, quarter note = 1 beat
     duration_map = {
         'whole': 4,
+        'dotted_whole': 6,
         'half': 2,
+        'dotted_half': 3,
         'quarter': 1,
+        'dotted_quarter': 1.5,
         'eighth': 0.5,
+        'dotted_eighth': 0.75,
         '16th': 0.25,
-        '32nd': 0.125
+        'sixteenth': 0.25,
+        'dotted_sixteenth': 0.375,
+        '32nd': 0.125,
+        'thirty-second': 0.125
     }
 
     if duration_str not in duration_map:
+        logging.error(f"Unknown duration: {duration_str}")
         raise ValueError(f"Unknown duration: {duration_str}")
 
     beats = duration_map[duration_str]
@@ -97,7 +109,14 @@ def beat_to_ticks(beat: float, bpm: int = DEFAULT_BPM) -> int:
     return int((beat - 1) * TICKS_PER_BEAT)
 
 def json_to_midi(music_notes: MusicNotes, bpm: int = DEFAULT_BPM, output_path: str = 'output.mid') -> str:
-    """Convert MusicNotes JSON to MIDI file."""
+    """Convert MusicNotes JSON to MIDI file and return the file path."""
+    midi_bytes = json_to_midi_bytes(music_notes, bpm)
+    with open(output_path, 'wb') as f:
+        f.write(midi_bytes)
+    return output_path
+
+def json_to_midi_bytes(music_notes: MusicNotes, bpm: int = DEFAULT_BPM) -> bytes:
+    """Convert MusicNotes JSON to MIDI bytes."""
     mid = MidiFile()
     tempo = bpm2tempo(bpm)
     mid.ticks_per_beat = TICKS_PER_BEAT
@@ -172,6 +191,9 @@ def json_to_midi(music_notes: MusicNotes, bpm: int = DEFAULT_BPM, output_path: s
                 track.append(Message('note_off', note=note, velocity=0, channel=channel_num, time=delta_time))
             current_time = event_time
 
-    # Save MIDI file
-    mid.save(output_path)
-    return output_path
+    # Return MIDI bytes
+    from io import BytesIO
+    buffer = BytesIO()
+    mid.save(file=buffer)
+    buffer.seek(0)
+    return buffer.read()

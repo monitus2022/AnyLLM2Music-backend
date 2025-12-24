@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import Mock
 from src.services.llm import LlmService
+from src.services.midi import duration_to_ticks, pitch_to_midi
 from src.schemas.openrouter import PromptRequest, CompletionKwargs
 
 @pytest.fixture
@@ -51,3 +52,16 @@ def test_llm_service_unsupported_provider():
     with pytest.raises(ValueError) as excinfo:
         LlmService(llm_provider=mocked_provider)
     assert str(excinfo.value) == f"Unsupported LLM provider: {mocked_provider}"
+
+def test_duration_to_ticks():
+    assert duration_to_ticks("quarter") == 480
+    assert duration_to_ticks("sixteenth") == 120
+    assert duration_to_ticks("dotted_eighth") == 360
+    with pytest.raises(ValueError):
+        duration_to_ticks("unknown")
+
+def test_pitch_to_midi():
+    assert pitch_to_midi("C4") == 60
+    assert pitch_to_midi(60) == 60
+    assert pitch_to_midi("rest") == -1
+    assert pitch_to_midi("kick", is_percussion=True) == 36
