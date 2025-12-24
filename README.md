@@ -17,17 +17,12 @@ graph TD;
     E --> E3[Section B];
     E --> E4[Outro];
     E1 --> F[Convert JSON to MIDI<br/>midi_generation.py];
-    E2 --> F;
-    E3 --> F;
-    E4 --> F;
-    F --> G[Synthesize Audio<br/>MIDI to Audio file];
 ```
 
 ## Tech Stack
 
-- LLM: Any OpenAI
+- LLM: Any OpenAI compatible models API (`x-ai/grok` for development usage)
 - Midi generation: `mido`
-- Audio synthesis: `midi2audio` (with `FluidSynth` support)
 - API gateway: `FastAPI`
 
 # Fastapi details (from template)
