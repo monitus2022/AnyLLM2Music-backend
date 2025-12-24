@@ -1,28 +1,25 @@
 import pytest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from src.services.llm import LlmService
 from src.services.midi import duration_to_ticks, pitch_to_midi
 from src.schemas.openrouter import PromptRequest, CompletionKwargs
 
-@pytest.fixture
-def mocked_client(monkeypatch):
-    mock_client = Mock()
-    monkeypatch.setattr("src.services.llm.OpenAI", lambda *args, **kwargs: mock_client)
-    return mock_client
-
-def test_llm_service_initialization_openrouter(mocked_client):
+@patch.dict('os.environ', {'OPENROUTER_API_KEY': 'fake'})
+def test_llm_service_initialization_openrouter():
     service = LlmService(llm_provider="openrouter")
     assert service.llm_provider == "openrouter"
-    assert service.client == mocked_client
+    assert service.client is None
 
-def test_prompt_llm_openrouter(mocked_client):
+@patch('instructor.from_provider')
+@patch.dict('os.environ', {'OPENROUTER_API_KEY': 'fake'})
+def test_prompt_llm_openrouter(mock_instructor):
+    mock_client = Mock()
+    mock_instructor.return_value = mock_client
+
     service = LlmService(llm_provider="openrouter")
-    mocked_response = Mock()
-    mocked_response.choices = [Mock()]
-    mocked_response.choices[0].message = Mock()
-    mocked_response.choices[0].message.content = "Test response"
-    mocked_client.chat.completions.create.return_value = mocked_response
-
+    mocked_response = "Test response"
+    mocked_completion = Mock()
+    mock_client.create_with_completion.return_value = (mocked_response, mocked_completion)
     mocked_user_messages = "Hello, LLM!"
     mocked_system_messages = "You are a helpful assistant."
     mocked_model = "llama3"
@@ -37,13 +34,15 @@ def test_prompt_llm_openrouter(mocked_client):
 
     response = service.prompt_llm(prompt_request)
 
-    mocked_client.chat.completions.create.assert_called_once_with(
+    mock_client.create_with_completion.assert_called_once_with(
         model=mocked_model,
         messages=[
             {"role": "user", "content": mocked_user_messages},
             {"role": "system", "content": mocked_system_messages},
         ],
-        **mocked_config
+        response_model=None,
+        **mocked_config,
+        max_retries=3
     )
     assert response == "Test response"
 

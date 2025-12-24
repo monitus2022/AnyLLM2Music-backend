@@ -6,6 +6,7 @@ __pycache__/
 *.log
 testing.*
 .pytest_cache/
+.coverage
 
 # Audio related files
 *.mid

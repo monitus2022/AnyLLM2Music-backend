@@ -56,6 +56,10 @@ class NotesGenService:
         sections = [sec.section for sec in music_rhythm.sections]
         app_logger.info(f"Generating notes for sections: {sections}")
 
+        if not sections:
+            app_logger.error("No sections found in music rhythm")
+            return None
+
         # Dictionary to accumulate sections per channel
         channel_dict = {}
 
