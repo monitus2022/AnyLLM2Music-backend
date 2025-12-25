@@ -68,8 +68,8 @@ resource "aws_security_group" "app_sg" {
   }
 
   ingress {
-    from_port   = 8000
-    to_port     = 8000
+    from_port   = 80
+    to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -102,7 +102,7 @@ resource "aws_instance" "app_instance" {
               service docker start
               usermod -a -G docker ec2-user
               docker pull ${var.docker_image}
-              docker run -d -p 8000:8000 \
+              docker run -d -p 80:80 \
                 -e OPENROUTER_URL=${var.openrouter_url} \
                 -e OPENROUTER_API_KEY=${var.openrouter_api_key} \
                 -e OPENROUTER_DEFAULT_FREE_MODEL=${var.openrouter_default_free_model} \

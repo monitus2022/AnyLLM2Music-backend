@@ -90,7 +90,7 @@ jobs:
         MAX_ATTEMPTS=30
         ATTEMPT=1
         while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
-          if curl -f --max-time 10 http://$INSTANCE_IP:8000/ > /dev/null 2>&1; then
+          if curl -f --max-time 10 http://$INSTANCE_IP/ > /dev/null 2>&1; then
             echo "App is responding!"
             exit 0
           fi
