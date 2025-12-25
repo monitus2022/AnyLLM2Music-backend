@@ -16,7 +16,7 @@ graph TD;
     E --> E2[Section A];
     E --> E3[Section B];
     E --> E4[Outro];
-    E1 --> F[Convert JSON to MIDI<br/>midi_generation.py];
+    E1 --> F[Convert Note Events to MIDI];
     E2 --> F
     E3 --> F
     E4 --> F
@@ -97,9 +97,8 @@ This project uses `python-dotenv` to load environment variables from a `.env` fi
 Example `.env` file:
 
 ```
-DATABASE_URL=sqlite:///./test.db
-SECRET_KEY=your-secret-key-here
-DEBUG=True
+OPENROUTER_URL=https://openrouter.ai/api/v1
+OPENROUTER_API_KEY=
 ```
 
 The application will automatically load these variables when running.
@@ -129,4 +128,14 @@ This will run all tests in the `tests/` directory.
 ```bash
 docker build -t anyllm2music-backend .
 docker run -p 8000:8000 anyllm2music-backend
+```
+
+## Cloud Architecture
+
+```mermaid
+graph TD
+    A[Frontend User] --> B[AWS ALB<br/>Port 80]
+    B --> C[AWS EC2 Instance<br/>Docker Container<br/>Port 8000]
+    C --> D[FastAPI App]
+    D --> E[OpenRouter API]
 ```
