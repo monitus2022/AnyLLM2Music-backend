@@ -47,16 +47,6 @@ variable "openrouter_default_model" {
   default     = "x-ai/grok-4.1-fast"
 }
 
-data "aws_ami" "amazon_linux" {
-  most_recent = true
-  owners      = ["amazon"]
-
-  filter {
-    name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
-  }
-}
-
 resource "aws_security_group" "app_sg" {
   name_prefix = "anyllm2music-sg"
 
@@ -82,33 +72,27 @@ resource "aws_security_group" "app_sg" {
   }
 }
 
-
-
-
-
-
-
-
 resource "aws_instance" "app_instance" {
-  ami           = data.aws_ami.amazon_linux.id
+  ami           = "ami-06571d6ae17e327ff"
   instance_type = var.instance_type
 
   security_groups = [aws_security_group.app_sg.name]
 
   user_data = <<-EOF
-              #!/bin/bash
-              yum update -y
-              amazon-linux-extras install docker -y
-              service docker start
-              usermod -a -G docker ec2-user
-              docker pull ${var.docker_image}
-              docker run -d -p 80:80 \
-                -e OPENROUTER_URL=${var.openrouter_url} \
-                -e OPENROUTER_API_KEY=${var.openrouter_api_key} \
-                -e OPENROUTER_DEFAULT_FREE_MODEL=${var.openrouter_default_free_model} \
-                -e OPENROUTER_DEFAULT_MODEL=${var.openrouter_default_model} \
-                ${var.docker_image}
-              EOF
+  #!/bin/bash
+  dnf update -y
+  dnf install -y docker
+  systemctl start docker
+  systemctl enable docker
+  usermod -aG docker ec2-user
+  docker pull ${var.docker_image}
+  docker run -d -p 80:80 \
+    -e OPENROUTER_URL=${var.openrouter_url} \
+    -e OPENROUTER_API_KEY=${var.openrouter_api_key} \
+    -e OPENROUTER_DEFAULT_FREE_MODEL=${var.openrouter_default_free_model} \
+    -e OPENROUTER_DEFAULT_MODEL=${var.openrouter_default_model} \
+    ${var.docker_image}
+  EOF
 
   tags = {
     Name = "AnyLLM2Music-Backend"
