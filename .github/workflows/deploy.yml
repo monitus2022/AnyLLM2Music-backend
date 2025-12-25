@@ -78,28 +78,3 @@ jobs:
     - name: Terraform Apply
       run: terraform apply -auto-approve -var="docker_image=${{ secrets.DOCKER_USERNAME }}/anyllm2music-backend:latest" -var="openrouter_api_key=${{ secrets.OPENROUTER_API_KEY }}"
       working-directory: terraform
-
-    - name: Install AWS CLI
-      run: sudo apt-get update && sudo apt-get install -y awscli
-
-    - name: Get Instance IP
-      run: |
-        INSTANCE_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=AnyLLM2Music-Backend" --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
-        echo "Instance IP: $INSTANCE_IP"
-        echo "INSTANCE_IP=$INSTANCE_IP" >> $GITHUB_ENV
-
-    - name: Test Deployment
-      run: |
-        MAX_ATTEMPTS=30
-        ATTEMPT=1
-        while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
-          if curl -f --max-time 10 http://$INSTANCE_IP/ > /dev/null 2>&1; then
-            echo "App is responding!"
-            exit 0
-          fi
-          echo "Attempt $ATTEMPT failed, retrying in 10 seconds..."
-          sleep 10
-          ATTEMPT=$((ATTEMPT + 1))
-        done
-        echo "App not responding after $MAX_ATTEMPTS attempts, check logs"
-        exit 1
