@@ -57,24 +57,33 @@ jobs:
         docker build -t ${{ secrets.DOCKER_USERNAME }}/anyllm2music-backend:latest .
         docker push ${{ secrets.DOCKER_USERNAME }}/anyllm2music-backend:latest
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ap-northeast-3
-
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
-
-    - name: Terraform Init
-      run: terraform init
-      working-directory: terraform
-
-    - name: Terraform Plan
-      run: terraform plan -var="docker_image=${{ secrets.DOCKER_USERNAME }}/anyllm2music-backend:latest" -var="openrouter_api_key=${{ secrets.OPENROUTER_API_KEY }}"
-      working-directory: terraform
-
-    - name: Terraform Apply
-      run: terraform apply -auto-approve -var="docker_image=${{ secrets.DOCKER_USERNAME }}/anyllm2music-backend:latest" -var="openrouter_api_key=${{ secrets.OPENROUTER_API_KEY }}"
-      working-directory: terraform
+  deploy-to-ec2:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - name: Deploy to EC2 via SSH
+      run: |
+        # Set up SSH key
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.EC2_PUBLIC_IP }} >> ~/.ssh/known_hosts
+        
+        # SSH and deploy
+        ssh -i ~/.ssh/id_rsa ec2-user@${{ secrets.EC2_PUBLIC_IP }} << EOF
+          # Pull new image
+          docker pull ${{ secrets.DOCKER_USERNAME }}/anyllm2music-backend:latest
+          
+          # Stop and remove old container
+          docker stop anyllm2music-container || true
+          docker rm anyllm2music-container || true
+          
+          # Run new container
+          docker run -d --name anyllm2music-container -p 80:80 \
+            -e OPENROUTER_URL=https://openrouter.ai/api/v1 \
+            -e OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }} \
+            -e OPENROUTER_DEFAULT_FREE_MODEL=meta-llama/llama-3.3-70b-instruct:free \
+            -e OPENROUTER_DEFAULT_MODEL=x-ai/grok-4.1-fast \
+            ${{ secrets.DOCKER_USERNAME }}/anyllm2music-backend:latest
+        EOF

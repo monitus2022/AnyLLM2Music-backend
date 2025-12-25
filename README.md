@@ -134,8 +134,19 @@ docker run -p 8000:8000 anyllm2music-backend
 
 ```mermaid
 graph TD
-    A[Frontend User] --> B[AWS ALB<br/>Port 80]
-    B --> C[AWS EC2 Instance<br/>Docker Container<br/>Port 8000]
+    A[Frontend User] --> B[AWS EC2 Instance<br/>Nginx on Port 80]
+    B --> C[Docker Container<br/>FastAPI on Port 8000]
     C --> D[FastAPI App]
     D --> E[OpenRouter API]
 ```
+
+## Deployment
+
+The application is deployed via CI/CD to an AWS EC2 instance:
+- **Infrastructure**: Provisioned separately in a dedicated repo using Terraform.
+- **Application**: Built as a Docker image, pushed to Docker Hub, and deployed to the EC2 via SSH.
+- **API Access**: Available at the EC2's public IP on port 80.
+
+For testing the deployed API, use endpoints like:
+- Health: `http://<ec2-public-ip>/health`
+- Generate Music: `http://<ec2-public-ip>/generate_midi_from_description?description=your%20music%20description`
