@@ -78,3 +78,25 @@ jobs:
     - name: Terraform Apply
       run: terraform apply -auto-approve -var="docker_image=${{ secrets.DOCKER_USERNAME }}/anyllm2music-backend:latest" -var="openrouter_api_key=${{ secrets.OPENROUTER_API_KEY }}"
       working-directory: terraform
+
+    - name: Get ALB DNS
+      run: |
+        ALB_DNS=$(terraform output alb_dns_name)
+        echo "ALB DNS: $ALB_DNS"
+        echo "ALB_DNS=$ALB_DNS" >> $GITHUB_ENV
+
+    - name: Test Deployment
+      run: |
+        MAX_ATTEMPTS=30
+        ATTEMPT=1
+        while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+          if curl -f --max-time 10 http://$ALB_DNS/ > /dev/null 2>&1; then
+            echo "App is responding!"
+            exit 0
+          fi
+          echo "Attempt $ATTEMPT failed, retrying in 10 seconds..."
+          sleep 10
+          ATTEMPT=$((ATTEMPT + 1))
+        done
+        echo "App not responding after $MAX_ATTEMPTS attempts, check logs"
+        exit 1
