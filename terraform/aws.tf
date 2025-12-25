@@ -68,24 +68,6 @@ resource "aws_security_group" "app_sg" {
   }
 
   ingress {
-    from_port   = 8000
-    to_port     = 8000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-resource "aws_security_group" "alb_sg" {
-  name_prefix = "anyllm2music-alb-sg"
-
-  ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -100,62 +82,12 @@ resource "aws_security_group" "alb_sg" {
   }
 }
 
-resource "aws_lb" "app_lb" {
-  name               = "anyllm2music-alb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb_sg.id]
-  subnets            = data.aws_subnets.default.ids
 
-  enable_deletion_protection = false
 
-  tags = {
-    Name = "AnyLLM2Music-ALB"
-  }
-}
 
-data "aws_subnets" "default" {
-  filter {
-    name   = "default-for-az"
-    values = ["true"]
-  }
-}
 
-resource "aws_lb_target_group" "app_tg" {
-  name     = "anyllm2music-tg"
-  port     = 8000
-  protocol = "HTTP"
-  vpc_id   = data.aws_vpc.default.id
 
-  health_check {
-    path                = "/"
-    interval            = 30
-    timeout             = 5
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-  }
-}
 
-data "aws_vpc" "default" {
-  default = true
-}
-
-resource "aws_lb_listener" "app_listener" {
-  load_balancer_arn = aws_lb.app_lb.arn
-  port              = "80"
-  protocol          = "HTTP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.app_tg.arn
-  }
-}
-
-resource "aws_lb_target_group_attachment" "app_tg_attachment" {
-  target_group_arn = aws_lb_target_group.app_tg.arn
-  target_id        = aws_instance.app_instance.id
-  port             = 8000
-}
 
 resource "aws_instance" "app_instance" {
   ami           = data.aws_ami.amazon_linux.id
@@ -170,7 +102,7 @@ resource "aws_instance" "app_instance" {
               service docker start
               usermod -a -G docker ec2-user
               docker pull ${var.docker_image}
-              docker run -d -p 8000:8000 \
+              docker run -d -p 80:80 \
                 -e OPENROUTER_URL=${var.openrouter_url} \
                 -e OPENROUTER_API_KEY=${var.openrouter_api_key} \
                 -e OPENROUTER_DEFAULT_FREE_MODEL=${var.openrouter_default_free_model} \
@@ -185,8 +117,4 @@ resource "aws_instance" "app_instance" {
 
 output "instance_public_ip" {
   value = aws_instance.app_instance.public_ip
-}
-
-output "alb_dns_name" {
-  value = aws_lb.app_lb.dns_name
 }

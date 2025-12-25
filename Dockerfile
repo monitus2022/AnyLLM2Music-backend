@@ -2,17 +2,18 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-RUN pip install poetry
-RUN poetry config virtualenvs.create false
+# Add nginx and supervisor dependencies
+RUN apt-get update && apt-get install -y curl nginx supervisor && rm -rf /var/lib/apt/lists/*
+
+RUN curl -sSL https://install.python-poetry.org | python3 - && /root/.local/bin/poetry config virtualenvs.create false
 
 COPY pyproject.toml poetry.lock ./
-RUN poetry install --no-interaction --no-ansi
-
-# Add fluidsynth dependencies
-RUN apt-get update && apt-get install -y fluidsynth && rm -rf /var/lib/apt/lists/*
+RUN /root/.local/bin/poetry install --no-interaction --no-ansi
 
 COPY src/ ./src/
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-EXPOSE 8000
+EXPOSE 80
 
-CMD ["poetry", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
