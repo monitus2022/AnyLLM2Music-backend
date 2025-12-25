@@ -79,14 +79,14 @@ jobs:
       run: terraform apply -auto-approve -var="docker_image=${{ secrets.DOCKER_USERNAME }}/anyllm2music-backend:latest" -var="openrouter_api_key=${{ secrets.OPENROUTER_API_KEY }}"
       working-directory: terraform
 
+    - name: Install AWS CLI
+      run: sudo apt-get update && sudo apt-get install -y awscli
+
     - name: Get Instance IP
       run: |
-        cd terraform
-        terraform output
-        INSTANCE_IP=$(terraform output instance_public_ip)
+        INSTANCE_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=AnyLLM2Music-Backend" --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
         echo "Instance IP: $INSTANCE_IP"
         echo "INSTANCE_IP=$INSTANCE_IP" >> $GITHUB_ENV
-      working-directory: terraform
 
     - name: Test Deployment
       run: |
