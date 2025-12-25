@@ -1,8 +1,7 @@
 from .llm import llm_service, LlmService
-from ..prompts.notes_gen import generate_note_events_prompt, ALL_CHANNELS
+from ..prompts.notes_gen import generate_note_events_prompt
 from ..prompts.base import BASE_CONTEXT_PROMPT
 from typing import Optional, Dict, List
-from openai.types.chat import ChatCompletion
 from ..logger import app_logger
 from ..schemas.openrouter import PromptRequest, CompletionKwargs
 from ..schemas.music import MusicPlan, MusicRhythm, SectionNotes, ChannelNotes, MusicNotes, SectionChannelsResponse
@@ -32,6 +31,10 @@ class NotesGenService:
         )
         completion_kwargs = CompletionKwargs(
             max_tokens=8192,
+            extra_body={
+        "reasoning": {  # https://openrouter.ai/docs/guides/best-practices/reasoning-tokens#controlling-reasoning-tokens
+            "effort": "xhigh"
+        }},
             **(kwargs or {})
         )
         prompt_request = PromptRequest(

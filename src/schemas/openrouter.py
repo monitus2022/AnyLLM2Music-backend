@@ -24,6 +24,7 @@ class CompletionKwargs(BaseModel):
     presence_penalty: Optional[float] = Field(
         None, description="Presence penalty")
     stop: Optional[List[str]] = Field(None, description="Stop sequences")
+    extra_body: Optional[Dict] = Field(None, description="Extra params")
 
 
 class OpenRouterPromptTemplate(BaseModel):

@@ -8,6 +8,10 @@ testing.*
 .pytest_cache/
 .coverage
 
+# Terraform
+terraform.tfvars
+.terraform/
+
 # Audio related files
 *.mid
 *.wav
