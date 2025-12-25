@@ -26,7 +26,7 @@ class AppLogger:
         log_dir = os.path.join(os.path.dirname(__file__), '..', 'logs')
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
-        file_handler = logging.FileHandler(os.path.join(log_dir, 'hk_housing_datahub.log'))
+        file_handler = logging.FileHandler(os.path.join(log_dir, 'anyllm2music.log'))
         file_handler.setLevel(logging.ERROR)
         file_handler.setFormatter(logging.Formatter(
             '%(asctime)s - %(module)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s'
@@ -36,4 +36,4 @@ class AppLogger:
     def get_logger(self):
         return self.logger
     
-app_logger = AppLogger('HousingDatahub').get_logger()
+app_logger = AppLogger('AnyLlm2Music').get_logger()

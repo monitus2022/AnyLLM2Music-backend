@@ -107,7 +107,7 @@ class MusicPlanService:
         music_parameters: Optional[dict] = None, 
         model: str = None, 
         kwargs: dict = None
-    ) -> Optional[ChatCompletion]:
+    ) -> tuple[Optional[MusicPlan], Optional[MusicRhythm]]:
         music_plan = self.generate_music_plan_given_description(
             description=description, music_parameters=music_parameters, model=model, kwargs=kwargs
         )
@@ -141,7 +141,7 @@ class MusicPlanService:
                 f,
                 indent=4,
             )
-        return rhythm_response
+        return music_plan, rhythm_response
 
 
 music_plan_service = MusicPlanService(llm_service=llm_service)

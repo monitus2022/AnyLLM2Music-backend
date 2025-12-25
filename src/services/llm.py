@@ -66,7 +66,8 @@ class LlmService:
             model="openrouter/" + model,
             api_key=app_settings.openrouter_api_key,
             base_url=app_settings.openrouter_url,
-            async_client=False
+            async_client=False,
+            mode=instructor.Mode.JSON           # Enforce json otherwise may give excess messages
         )
 
         try:
@@ -78,7 +79,8 @@ class LlmService:
                 ],
                 response_model=response_format,
                 **kwargs_dict,
-                max_retries=3
+                max_retries=3,
+                # tools=None
             )
             app_logger.debug(f"LLM response: {response}")
             app_logger.debug(
