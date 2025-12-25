@@ -17,6 +17,9 @@ graph TD;
     E --> E3[Section B];
     E --> E4[Outro];
     E1 --> F[Convert JSON to MIDI<br/>midi_generation.py];
+    E2 --> F
+    E3 --> F
+    E4 --> F
 ```
 
 ## Tech Stack

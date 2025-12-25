@@ -9,6 +9,10 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      OPENROUTER_API_KEY: fake_key_for_testing
+      OPENROUTER_URL: https://openrouter.ai/api/v1
+      OPENROUTER_DEFAULT_FREE_MODEL: openai/gpt-oss-120b:free
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
