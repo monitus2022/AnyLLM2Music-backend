@@ -48,7 +48,7 @@ variable "openrouter_default_model" {
 }
 
 resource "aws_security_group" "app_sg" {
-  name_prefix = "anyllm2music-sg"
+  name = "anyllm2music-sg"
 
   ingress {
     from_port   = 22
