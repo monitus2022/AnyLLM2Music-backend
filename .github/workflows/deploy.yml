@@ -1,12 +1,41 @@
-name: Deploy
+name: CI/CD
 
 on:
   push:
     branches:
       - main
+      - dev
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+
+    - name: Add Poetry to PATH
+      run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+    - name: Install dependencies
+      run: |
+        poetry install --with dev
+
+    - name: Run tests
+      run: |
+        poetry run pytest
+
   build-and-push:
+    needs: test
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
@@ -36,9 +65,9 @@ jobs:
       working-directory: terraform
 
     - name: Terraform Plan
-      run: terraform pl
+      run: terraform plan -var="docker_image=${{ secrets.DOCKER_USERNAME }}/anyllm2music-backend:latest" -var="openrouter_api_key=${{ secrets.OPENROUTER_API_KEY }}"
       working-directory: terraform
 
     - name: Terraform Apply
-      run: terraform apply -auto-approve
+      run: terraform apply -auto-approve -var="docker_image=${{ secrets.DOCKER_USERNAME }}/anyllm2music-backend:latest" -var="openrouter_api_key=${{ secrets.OPENROUTER_API_KEY }}"
       working-directory: terraform
