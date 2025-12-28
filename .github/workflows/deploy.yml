@@ -46,35 +46,60 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-
-    - name: Build and push Docker image
-      run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/anyllm2music-backend:latest .
-        docker push ${{ secrets.DOCKER_USERNAME }}/anyllm2music-backend:latest
-
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ap-northeast-3
+        aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
+    - name: Log in to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Terraform Init
-      run: terraform init
-      working-directory: terraform
+    - name: Build and push Docker image
+      run: |
+        ECR_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+        IMAGE_NAME=$ECR_URI/anyllm2music-backend:latest
+        DOCKER_BUILDKIT=1 docker build -t $IMAGE_NAME .
+        docker push $IMAGE_NAME
 
-    - name: Terraform Plan
-      run: terraform plan -var="docker_image=${{ secrets.DOCKER_USERNAME }}/anyllm2music-backend:latest" -var="openrouter_api_key=${{ secrets.OPENROUTER_API_KEY }}"
-      working-directory: terraform
+  deploy-to-ec2:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    env:
+      OPENROUTER_URL: ${{ secrets.OPENROUTER_URL }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      OPENROUTER_DEFAULT_FREE_MODEL: ${{ secrets.OPENROUTER_DEFAULT_FREE_MODEL }}
+      OPENROUTER_DEFAULT_MODEL: ${{ secrets.OPENROUTER_DEFAULT_MODEL }}
+    steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Terraform Apply
-      run: terraform apply -auto-approve -var="docker_image=${{ secrets.DOCKER_USERNAME }}/anyllm2music-backend:latest" -var="openrouter_api_key=${{ secrets.OPENROUTER_API_KEY }}"
-      working-directory: terraform
+    - name: Deploy to EC2 via Systems Manager
+      run: |
+        ECR_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+        IMAGE_NAME=$ECR_URI/anyllm2music-backend:latest
+
+        COMMANDS="
+        docker pull $IMAGE_NAME
+        docker stop anyllm2music-container || true
+        docker rm anyllm2music-container || true
+        docker run -d --name anyllm2music-container -p 80:80 \
+          -e OPENROUTER_URL=$OPENROUTER_URL \
+          -e OPENROUTER_API_KEY=$OPENROUTER_API_KEY \
+          -e OPENROUTER_DEFAULT_FREE_MODEL=$OPENROUTER_DEFAULT_FREE_MODEL \
+          -e OPENROUTER_DEFAULT_MODEL=$OPENROUTER_DEFAULT_MODEL \
+          $IMAGE_NAME
+        "
+
+        aws ssm send-command \
+          --document-name "AWS-RunShellScript" \
+          --targets "tag:Name=AnyLLM2Music-EC2" \
+          --parameters "commands=$COMMANDS" \
+          --timeout-seconds 600

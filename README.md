@@ -89,7 +89,7 @@ This will install all the required dependencies, including FastAPI, Uvicorn, Pyd
 
 ## Environment Configuration
 
-This project uses `python-dotenv` to load environment variables from a `.env` file.
+This project uses `python-settings` to load environment variables from a `.env` file.
 
 1. Copy the `.env.template` file to `.env` in the root directory of the project.
 2. Fill in your actual environment variable values in the `.env` file.
@@ -99,6 +99,7 @@ Example `.env` file:
 ```
 OPENROUTER_URL=https://openrouter.ai/api/v1
 OPENROUTER_API_KEY=
+...
 ```
 
 The application will automatically load these variables when running.
@@ -125,17 +126,49 @@ This will run all tests in the `tests/` directory.
 
 # Local Docker Testing
 
+For easy local testing, use the provided script:
+
 ```bash
-docker build -t anyllm2music-backend .
-docker run -p 8000:8000 anyllm2music-backend
+chmod u+x ./docker-local-test.sh # for exec right
+./docker-local-test.sh
 ```
+
+This script:
+- Builds the Docker image (copies your `.env` file into the container)
+- Runs the container
+- Performs basic health checks
+
+**Note**: The script requires a `.env` file with real API keys (e.g., `OPENROUTER_API_KEY`). If you don't have one, copy `.env.template` to `.env` and fill in the values.
+
+Ensure the script is executable: `chmod +x docker-local-test.sh`
+
+The script maps the container's port 80 to host port 8000 for easy access.
 
 ## Cloud Architecture
 
 ```mermaid
 graph TD
-    A[Frontend User] --> B[AWS ALB<br/>Port 80]
-    B --> C[AWS EC2 Instance<br/>Docker Container<br/>Port 8000]
+    A[Frontend User] --> B[AWS EC2 Instance<br/>Nginx on Port 80]
+    B --> C[Docker Container<br/>FastAPI on Port 8000]
     C --> D[FastAPI App]
     D --> E[OpenRouter API]
 ```
+
+## Deployment
+
+The application is deployed via CI/CD to an AWS EC2 instance:
+- **Infrastructure**: ECR repository provisioned using Terraform (see `terraform/main.tf`). EC2 instance managed separately.
+- **Application**: Built as a Docker image, pushed to AWS ECR, and deployed to the EC2 via AWS Systems Manager.
+- **Security**: Uses IAM roles for ECR access and SSM for secure command execution, eliminating SSH keys.
+- **API Access**: Available at the EC2's public IP on port 80.
+
+### Prerequisites
+- EC2 instance must have an IAM role with the following permissions:
+  - `AmazonEC2ContainerRegistryReadOnly` for ECR access
+  - `AmazonSSMManagedInstanceCore` for Systems Manager
+- EC2 instance must be tagged with `Name=AnyLLM2Music-EC2` for SSM targeting.
+- GitHub secrets configured: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `AWS_ACCOUNT_ID`, `OPENROUTER_API_KEY`
+
+For testing the deployed API, use endpoints like:
+- Health: `http://<ec2-public-ip>/health`
+- Generate Music: `http://<ec2-public-ip>/generate_midi_from_description?description=your%20music%20description`
