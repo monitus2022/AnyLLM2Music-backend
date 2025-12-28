@@ -98,6 +98,7 @@ jobs:
         IMAGE_NAME=$ECR_URI/anyllm2music-backend:latest
 
         COMMANDS="
+        aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
         docker pull $IMAGE_NAME
         docker stop anyllm2music-container || true
         docker rm anyllm2music-container || true
@@ -114,3 +115,14 @@ jobs:
            --targets Key=tag:Name,Values=AnyLLM2Music-EC2 \
            --parameters "commands=$COMMANDS" \
            --timeout-seconds 600
+
+    - name: Get EC2 public IP
+      id: get-ip
+      run: |
+        IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=AnyLLM2Music-EC2" --query "Reservations[*].Instances[*].PublicIpAddress" --output text)
+        echo "ip=$IP" >> $GITHUB_OUTPUT
+
+    - name: Verify API is running
+      run: |
+        sleep 60
+        curl -f --max-time 30 http://${{ steps.get-ip.outputs.ip }}/
