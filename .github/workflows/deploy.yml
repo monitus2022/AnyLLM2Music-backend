@@ -112,7 +112,7 @@ jobs:
 
         aws ssm send-command \
            --document-name "AWS-RunShellScript" \
-           --targets Key=tag:Name,Values=AnyLLM2Music-EC2 \
+           --targets Key=tag:Name,Values=monitus \
            --parameters "commands=$COMMANDS" \
            --timeout-seconds 600
 
