@@ -119,7 +119,7 @@ jobs:
     - name: Get EC2 public IP
       id: get-ip
       run: |
-        IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=AnyLLM2Music-EC2" --query "Reservations[*].Instances[*].PublicIpAddress" --output text)
+        IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=monitus" --query "Reservations[*].Instances[*].PublicIpAddress" --output text)
         echo "ip=$IP" >> $GITHUB_OUTPUT
 
     - name: Verify API is running
