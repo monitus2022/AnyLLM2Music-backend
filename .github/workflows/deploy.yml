@@ -60,6 +60,10 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
+    - name: Ensure ECR repository exists
+      run: |
+        aws ecr describe-repositories --repository-names anyllm2music-backend || aws ecr create-repository --repository-name anyllm2music-backend
+
     - name: Build and push Docker image
       run: |
         ECR_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
