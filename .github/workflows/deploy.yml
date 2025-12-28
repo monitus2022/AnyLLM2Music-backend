@@ -106,7 +106,7 @@ jobs:
         "
 
         aws ssm send-command \
-          --document-name "AWS-RunShellScript" \
-          --targets "tag:Name=AnyLLM2Music-EC2" \
-          --parameters "commands=$COMMANDS" \
-          --timeout-seconds 600
+           --document-name "AWS-RunShellScript" \
+           --targets Key=tag:Name,Values=AnyLLM2Music-EC2 \
+           --parameters "commands=$COMMANDS" \
+           --timeout-seconds 600
