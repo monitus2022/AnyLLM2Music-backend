@@ -105,6 +105,7 @@ jobs:
         docker run -d --name anyllm2music-container -p 80:80 -p 443:443 \
           -v /etc/ssl/certs/certificate.pem:/etc/ssl/certs/certificate.pem:ro \
           -v /etc/ssl/private/private.key:/etc/ssl/private/private.key:ro \
+          -v /home/ec2-user/anyllm2music-logs:/app/logs \
           -e OPENROUTER_URL=$OPENROUTER_URL \
           -e OPENROUTER_API_KEY=$OPENROUTER_API_KEY \
           -e OPENROUTER_DEFAULT_FREE_MODEL=$OPENROUTER_DEFAULT_FREE_MODEL \
