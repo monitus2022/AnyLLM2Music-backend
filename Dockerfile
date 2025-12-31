@@ -36,6 +36,6 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # Copy .env if it exists (for local testing; production uses env vars)
 RUN [ -f .env ] && cp .env /app/.env || true
 
-EXPOSE 80
+EXPOSE 80 443
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
