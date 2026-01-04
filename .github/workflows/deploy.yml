@@ -97,19 +97,19 @@ jobs:
         ECR_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
         IMAGE_NAME=$ECR_URI/anyllm2music-backend:latest
 
-        COMMANDS_JSON=$(jq -n --arg cert "${{ secrets.SSL_CERT }}" --arg key "${{ secrets.SSL_KEY }}" '{
+        COMMANDS_JSON='{
           "commands": [
             "sudo mkdir -p /etc/ssl/certs /etc/ssl/private",
-            ("sudo bash -c \"cat > /etc/ssl/certs/certificate.pem << \\'EOF\\'\\n" + $cert + "\\nEOF\""),
-            ("sudo bash -c \"cat > /etc/ssl/private/private.key << \\'EOF\\'\\n" + $key + "\\nEOF\""),
+            "sudo bash -c \"cat > /etc/ssl/certs/certificate.pem << '"'"'EOF'"'"'\\n'"${{ secrets.SSL_CERT }}"'\\nEOF\"",
+            "sudo bash -c \"cat > /etc/ssl/private/private.key << '"'"'EOF'"'"'\\n'"${{ secrets.SSL_KEY }}"'\\nEOF\"",
             "sudo chmod 600 /etc/ssl/private/private.key",
             "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com",
-            "docker pull " + $IMAGE_NAME,
+            "docker pull '"$IMAGE_NAME"'",
             "docker stop anyllm2music-container || true",
             "docker rm anyllm2music-container || true",
-            "docker run -d --name anyllm2music-container -p 80:80 -p 443:443 -v /etc/ssl/certs/certificate.pem:/etc/ssl/certs/certificate.pem:ro -v /etc/ssl/private/private.key:/etc/ssl/private/private.key:ro -v /home/ec2-user/anyllm2music-logs:/app/logs -e OPENROUTER_URL=" + env.OPENROUTER_URL + " -e OPENROUTER_API_KEY=" + env.OPENROUTER_API_KEY + " -e OPENROUTER_DEFAULT_FREE_MODEL=" + env.OPENROUTER_DEFAULT_FREE_MODEL + " -e OPENROUTER_DEFAULT_MODEL=" + env.OPENROUTER_DEFAULT_MODEL + " " + $IMAGE_NAME
+            "docker run -d --name anyllm2music-container -p 80:80 -p 443:443 -v /etc/ssl/certs/certificate.pem:/etc/ssl/certs/certificate.pem:ro -v /etc/ssl/private/private.key:/etc/ssl/private/private.key:ro -v /home/ec2-user/anyllm2music-logs:/app/logs -e OPENROUTER_URL='"$OPENROUTER_URL"' -e OPENROUTER_API_KEY='"$OPENROUTER_API_KEY"' -e OPENROUTER_DEFAULT_FREE_MODEL='"$OPENROUTER_DEFAULT_FREE_MODEL"' -e OPENROUTER_DEFAULT_MODEL='"$OPENROUTER_DEFAULT_MODEL"' '"$IMAGE_NAME"'"
           ]
-        }')
+        }'
 
         aws ssm send-command \
            --document-name "AWS-RunShellScript" \
