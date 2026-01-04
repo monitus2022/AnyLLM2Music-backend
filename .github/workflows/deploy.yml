@@ -97,19 +97,32 @@ jobs:
         ECR_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
         IMAGE_NAME=$ECR_URI/anyllm2music-backend:latest
 
-        COMMANDS_JSON='{
-          "commands": [
-            "sudo mkdir -p /etc/ssl/certs /etc/ssl/private",
-            "sudo bash -c \"cat > /etc/ssl/certs/certificate.pem << '"'"'EOF'"'"'\\n'"${{ secrets.SSL_CERT }}"'\\nEOF\"",
-            "sudo bash -c \"cat > /etc/ssl/private/private.key << '"'"'EOF'"'"'\\n'"${{ secrets.SSL_KEY }}"'\\nEOF\"",
-            "sudo chmod 600 /etc/ssl/private/private.key",
-            "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com",
-            "docker pull '"$IMAGE_NAME"'",
-            "docker stop anyllm2music-container || true",
-            "docker rm anyllm2music-container || true",
-            "docker run -d --name anyllm2music-container -p 80:80 -p 443:443 -v /etc/ssl/certs/certificate.pem:/etc/ssl/certs/certificate.pem:ro -v /etc/ssl/private/private.key:/etc/ssl/private/private.key:ro -v /home/ec2-user/anyllm2music-logs:/app/logs -e OPENROUTER_URL='"$OPENROUTER_URL"' -e OPENROUTER_API_KEY='"$OPENROUTER_API_KEY"' -e OPENROUTER_DEFAULT_FREE_MODEL='"$OPENROUTER_DEFAULT_FREE_MODEL"' -e OPENROUTER_DEFAULT_MODEL='"$OPENROUTER_DEFAULT_MODEL"' '"$IMAGE_NAME"'"
+        COMMANDS_JSON=$(python3 <<EOF
+          import json
+          import os
+          cert = '''${{ secrets.SSL_CERT }}'''
+          key = '''${{ secrets.SSL_KEY }}'''
+          image = os.environ['IMAGE_NAME']
+          openrouter_url = os.environ['OPENROUTER_URL']
+          openrouter_api_key = os.environ['OPENROUTER_API_KEY']
+          openrouter_default_free_model = os.environ['OPENROUTER_DEFAULT_FREE_MODEL']
+          openrouter_default_model = os.environ['OPENROUTER_DEFAULT_MODEL']
+          aws_region = '${{ secrets.AWS_REGION }}'
+          aws_account_id = '${{ secrets.AWS_ACCOUNT_ID }}'
+          commands = [
+              'sudo mkdir -p /etc/ssl/certs /etc/ssl/private',
+              f'sudo bash -c \"cat > /etc/ssl/certs/certificate.pem << \\'EOF\\'\\n{cert}\\nEOF\"',
+              f'sudo bash -c \"cat > /etc/ssl/private/private.key << \\'EOF\\'\\n{key}\\nEOF\"',
+              'sudo chmod 600 /etc/ssl/private/private.key',
+              f'aws ecr get-login-password --region {aws_region} | docker login --username AWS --password-stdin {aws_account_id}.dkr.ecr.{aws_region}.amazonaws.com',
+              f'docker pull {image}',
+              'docker stop anyllm2music-container || true',
+              'docker rm anyllm2music-container || true',
+              f'docker run -d --name anyllm2music-container -p 80:80 -p 443:443 -v /etc/ssl/certs/certificate.pem:/etc/ssl/certs/certificate.pem:ro -v /etc/ssl/private/private.key:/etc/ssl/private/private.key:ro -v /home/ec2-user/anyllm2music-logs:/app/logs -e OPENROUTER_URL={openrouter_url} -e OPENROUTER_API_KEY={openrouter_api_key} -e OPENROUTER_DEFAULT_FREE_MODEL={openrouter_default_free_model} -e OPENROUTER_DEFAULT_MODEL={openrouter_default_model} {image}'
           ]
-        }'
+          print(json.dumps({'commands': commands}))
+          EOF
+          )
 
         aws ssm send-command \
            --document-name "AWS-RunShellScript" \
