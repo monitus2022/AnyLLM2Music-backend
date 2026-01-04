@@ -97,13 +97,17 @@ jobs:
         ECR_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
         IMAGE_NAME=$ECR_URI/anyllm2music-backend:latest
 
-        COMMANDS="
+        COMMANDS=$(cat <<EOF
         # Create SSL directories if needed
         sudo mkdir -p /etc/ssl/certs /etc/ssl/private
 
         # Write certs from secrets
-        echo '${{ secrets.SSL_CERT }}' | sudo tee /etc/ssl/certs/certificate.pem > /dev/null
-        echo '${{ secrets.SSL_KEY }}' | sudo tee /etc/ssl/private/private.key > /dev/null
+        sudo bash -c "cat > /etc/ssl/certs/certificate.pem << 'EOF'
+        ${{ secrets.SSL_CERT }}
+        EOF"
+        sudo bash -c "cat > /etc/ssl/private/private.key << 'EOF'
+        ${{ secrets.SSL_KEY }}
+        EOF"
         sudo chmod 600 /etc/ssl/private/private.key
 
         aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
@@ -119,7 +123,8 @@ jobs:
           -e OPENROUTER_DEFAULT_FREE_MODEL=$OPENROUTER_DEFAULT_FREE_MODEL \
           -e OPENROUTER_DEFAULT_MODEL=$OPENROUTER_DEFAULT_MODEL \
           $IMAGE_NAME
-        "
+        EOF
+        )
 
         aws ssm send-command \
            --document-name "AWS-RunShellScript" \
