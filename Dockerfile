@@ -33,6 +33,12 @@ COPY --from=build /app/src ./src/
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# Copy SSL certificates
+RUN mkdir -p /etc/ssl/certs /etc/ssl/private
+COPY origin.pem /etc/ssl/certs/certificate.pem
+COPY origin.key /etc/ssl/private/private.key
+RUN chmod 600 /etc/ssl/private/private.key
+
 # Copy .env if it exists (for local testing; production uses env vars)
 RUN [ -f .env ] && cp .env /app/.env || true
 
