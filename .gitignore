@@ -12,6 +12,10 @@ testing.*
 terraform.tfvars
 .terraform/
 
+# SSL certificates (downloaded during CI/CD)
+origin.pem
+origin.key
+
 # Audio related files
 *.mid
 *.wav
