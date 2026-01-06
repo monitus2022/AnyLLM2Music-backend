@@ -97,37 +97,45 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Deploy to EC2 via Systems Manager
+    - name: Login to ECR on EC2
       run: |
-        ECR_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-        IMAGE_NAME=$ECR_URI/anyllm2music-backend:latest
-
-        COMMANDS_JSON=$(python3 <<EOF
-          import json
-          import os
-          image = os.environ['IMAGE_NAME']
-          openrouter_url = os.environ['OPENROUTER_URL']
-          openrouter_api_key = os.environ['OPENROUTER_API_KEY']
-          openrouter_default_free_model = os.environ['OPENROUTER_DEFAULT_FREE_MODEL']
-          openrouter_default_model = os.environ['OPENROUTER_DEFAULT_MODEL']
-          aws_region = '${{ secrets.AWS_REGION }}'
-          aws_account_id = '${{ secrets.AWS_ACCOUNT_ID }}'
-          commands = [
-              f'aws ecr get-login-password --region {aws_region} | docker login --username AWS --password-stdin {aws_account_id}.dkr.ecr.{aws_region}.amazonaws.com',
-              f'docker pull {image}',
-              'docker stop anyllm2music-container || true',
-              'docker rm anyllm2music-container || true',
-              f'docker run -d --name anyllm2music-container -p 80:80 -p 443:443 -v /home/ec2-user/anyllm2music-logs:/app/logs -e OPENROUTER_URL={openrouter_url} -e OPENROUTER_API_KEY={openrouter_api_key} -e OPENROUTER_DEFAULT_FREE_MODEL={openrouter_default_free_model} -e OPENROUTER_DEFAULT_MODEL={openrouter_default_model} {image}'
-          ]
-          print(json.dumps({'commands': commands}))
-          EOF
-          )
-
         aws ssm send-command \
-           --document-name "AWS-RunShellScript" \
-           --targets Key=tag:Name,Values=monitus \
-           --parameters "$COMMANDS_JSON" \
-           --timeout-seconds 600
+          --document-name "AWS-RunShellScript" \
+          --targets Key=tag:Name,Values=monitus \
+          --parameters "commands=[\"aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com\"]" \
+          --timeout-seconds 300
+
+    - name: Pull Docker image on EC2
+      run: |
+        aws ssm send-command \
+          --document-name "AWS-RunShellScript" \
+          --targets Key=tag:Name,Values=monitus \
+          --parameters "commands=[\"docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/anyllm2music-backend:latest\"]" \
+          --timeout-seconds 300
+
+    - name: Stop old container on EC2
+      run: |
+        aws ssm send-command \
+          --document-name "AWS-RunShellScript" \
+          --targets Key=tag:Name,Values=monitus \
+          --parameters "commands=[\"docker stop anyllm2music-container || true\"]" \
+          --timeout-seconds 300
+
+    - name: Remove old container on EC2
+      run: |
+        aws ssm send-command \
+          --document-name "AWS-RunShellScript" \
+          --targets Key=tag:Name,Values=monitus \
+          --parameters "commands=[\"docker rm anyllm2music-container || true\"]" \
+          --timeout-seconds 300
+
+    - name: Run new container on EC2
+      run: |
+        aws ssm send-command \
+          --document-name "AWS-RunShellScript" \
+          --targets Key=tag:Name,Values=monitus \
+          --parameters "commands=[\"docker run -d --name anyllm2music-container -p 80:80 -p 443:443 -v /home/ec2-user/anyllm2music-logs:/app/logs -e OPENROUTER_URL=${{ secrets.OPENROUTER_URL }} -e OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }} -e OPENROUTER_DEFAULT_FREE_MODEL=${{ secrets.OPENROUTER_DEFAULT_FREE_MODEL }} -e OPENROUTER_DEFAULT_MODEL=${{ secrets.OPENROUTER_DEFAULT_MODEL }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/anyllm2music-backend:latest\"]" \
+          --timeout-seconds 600
 
     - name: Get EC2 public IP
       id: get-ip
