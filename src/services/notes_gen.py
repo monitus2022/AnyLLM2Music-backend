@@ -23,6 +23,15 @@ class NotesGenService:
             model: str = None,
             kwargs: dict = None
     ) -> Optional[SectionChannelsResponse]:
+        """
+        Generate notes for a specific section based on the music plan and rhythm.
+        :param section_name: Name of the section to generate notes for
+        :param music_plan: MusicPlan object
+        :param music_rhythm: MusicRhythm object
+        :param model: LLM model to use
+        :param kwargs: Additional kwargs for LLM prompting
+        :return: Generated SectionChannelsResponse object
+        """
         app_logger.info(f"Generating notes for section: {section_name}")
         prompt = generate_note_events_prompt(
             section_name=section_name,
@@ -56,6 +65,14 @@ class NotesGenService:
             music_rhythm: MusicRhythm,
             model: str = None,
             kwargs: dict = None) -> Optional[MusicNotes]:
+        """
+        Generate notes for all sections in the music rhythm based on the music plan.
+        :param music_plan: MusicPlan
+        :param music_rhythm: MusicRhythm
+        :param model: LLM model to use
+        :param kwargs: Additional kwargs for LLM prompting
+        :return: Generated MusicNotes object
+        """
         sections = [sec.section for sec in music_rhythm.sections]
         app_logger.info(f"Generating notes for sections: {sections}")
 
@@ -97,8 +114,9 @@ class NotesGenService:
 
         result = MusicNotes(channels=channel_notes)
 
-        with open("music_notes.json", "w") as f:
-            json.dump(result.model_dump(), f, indent=4)
+        # Debug purpose only: save to json file
+        # with open("music_notes.json", "w") as f:
+        #     json.dump(result.model_dump(), f, indent=4)
 
         return result
 
