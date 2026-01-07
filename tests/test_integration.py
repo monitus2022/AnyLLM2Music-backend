@@ -7,9 +7,9 @@ from src.schemas.music import MusicPlan, MusicRhythm, MusicNotes, TempoFeel, Ins
 client = TestClient(app)
 
 
-@patch('src.routes.llm.music_plan_service')
-@patch('src.routes.llm.notes_gen_service')
-@patch('src.routes.llm.json_to_midi_bytes')
+@patch('src.routes.midi.music_plan_service')
+@patch('src.routes.midi.notes_gen_service')
+@patch('src.routes.midi.json_to_midi_bytes')
 def test_full_pipeline_generate_midi_from_description(mock_midi, mock_notes_service, mock_plan_service):
     # Mock the services
     mock_plan = MusicPlan(
@@ -33,7 +33,7 @@ def test_full_pipeline_generate_midi_from_description(mock_midi, mock_notes_serv
     mock_notes_service.generate_all_channel_notes = AsyncMock(return_value=mock_notes)
     mock_midi.return_value = b'midi_bytes'
 
-    response = client.get("/generate_midi_from_description?description=A jazz piece")
+    response = client.get("/v1/music/generate_midi_from_description?description=A jazz piece")
 
     assert response.status_code == 200
     data = response.json()
@@ -41,19 +41,19 @@ def test_full_pipeline_generate_midi_from_description(mock_midi, mock_notes_serv
     assert data["description"] == "A jazz piece"
 
 
-@patch('src.routes.llm.music_plan_service')
+@patch('src.routes.midi.music_plan_service')
 def test_pipeline_failure_at_plan(mock_plan_service):
     mock_plan_service.generate_music_rhythm_given_description = AsyncMock(return_value=(None, None))
 
-    response = client.get("/generate_midi_from_description?description=A jazz piece")
+    response = client.get("/v1/music/generate_midi_from_description?description=A jazz piece")
 
     assert response.status_code == 200
     data = response.json()
     assert "error" in data
 
 
-@patch('src.routes.llm.music_plan_service')
-@patch('src.routes.llm.notes_gen_service')
+@patch('src.routes.midi.music_plan_service')
+@patch('src.routes.midi.notes_gen_service')
 def test_pipeline_failure_at_notes(mock_notes_service, mock_plan_service):
     mock_plan = MusicPlan(
         genre_style="Jazz",
@@ -72,7 +72,7 @@ def test_pipeline_failure_at_notes(mock_notes_service, mock_plan_service):
     mock_plan_service.generate_music_rhythm_given_description = AsyncMock(return_value=(mock_plan, mock_rhythm))
     mock_notes_service.generate_all_channel_notes = AsyncMock(return_value=None)
 
-    response = client.get("/generate_midi_from_description?description=A jazz piece")
+    response = client.get("/v1/music/generate_midi_from_description?description=A jazz piece")
 
     assert response.status_code == 200
     data = response.json()
