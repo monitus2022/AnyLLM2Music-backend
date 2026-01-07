@@ -1,4 +1,5 @@
-from openai import OpenAI
+import asyncio
+from openai import AsyncOpenAI
 from openai.types.chat import ChatCompletion
 from ..config import app_settings
 from ..prompts.base import HEALTH_CHECK_PROMPT
@@ -18,7 +19,7 @@ class LlmService:
             raise ValueError(f"Unsupported LLM provider: {self.llm_provider}")
         self.client = None
 
-    def prompt_llm(
+    async def prompt_llm(
         self,
         prompt_request: PromptRequest,
     ) -> Optional[BaseModel]:
@@ -66,12 +67,12 @@ class LlmService:
             model="openrouter/" + model,
             api_key=app_settings.openrouter_api_key,
             base_url=app_settings.openrouter_url,
-            async_client=False,
+            async_client=True,
             mode=instructor.Mode.JSON           # Enforce json otherwise may give excess messages
         )
 
         try:
-            response, chat_completion_message = self.client.create_with_completion(
+            response, chat_completion_message = await self.client.create_with_completion(
                 model=model,
                 messages=[
                     {"role": "user", "content": prompt_request.user_messages},
@@ -90,13 +91,13 @@ class LlmService:
             app_logger.error(f"Error parsing LLM response: {e}")
             return None
 
-    def health_check(self, model: Optional[str] = None):
+    async def health_check(self, model: Optional[str] = None):
         app_logger.info(f"Performing health check for model: {model}")
         try:
             prompt_request = PromptRequest(
                 user_messages=HEALTH_CHECK_PROMPT, system_messages="", model=model, kwargs={}
             )
-            self.prompt_llm(prompt_request)
+            await self.prompt_llm(prompt_request)
             app_logger.info(f"Health check successful for model: {model}")
             return {"model": model, "status": "healthy"}
         except Exception as e:

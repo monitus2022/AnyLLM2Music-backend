@@ -1,3 +1,4 @@
+import asyncio
 from .llm import llm_service, LlmService
 from ..prompts.notes_gen import generate_note_events_prompt
 from ..prompts.base import BASE_CONTEXT_PROMPT
@@ -7,7 +8,6 @@ from ..schemas.openrouter import PromptRequest, CompletionKwargs
 from ..schemas.music import MusicPlan, MusicRhythm, SectionNotes, ChannelNotes, MusicNotes, SectionChannelsResponse
 import json
 from ..utils import timeit
-import concurrent.futures
 
 
 class NotesGenService:
@@ -15,7 +15,7 @@ class NotesGenService:
         self.llm_service = llm_service
 
     @timeit
-    def generate_section_notes_given_music_rhythm(
+    async def generate_section_notes_given_music_rhythm(
             self,
             section_name: str,
             music_plan: MusicPlan,
@@ -44,13 +44,13 @@ class NotesGenService:
             response_format=SectionChannelsResponse,
             kwargs=completion_kwargs,
         )
-        response = self.llm_service.prompt_llm(prompt_request)
+        response = await self.llm_service.prompt_llm(prompt_request)
         if response:
             return response
         return None
 
     @timeit
-    def generate_all_channel_notes(
+    async def generate_all_channel_notes(
             self,
             music_plan: MusicPlan,
             music_rhythm: MusicRhythm,
@@ -66,24 +66,25 @@ class NotesGenService:
         # Dictionary to accumulate sections per channel
         channel_dict = {}
 
-        def generate_for_section(section_name):
-            return self.generate_section_notes_given_music_rhythm(section_name, music_plan, music_rhythm, model, kwargs)
+        async def generate_for_section(section_name):
+            return await self.generate_section_notes_given_music_rhythm(section_name, music_plan, music_rhythm, model, kwargs)
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=len(sections)) as executor:
-            futures = [executor.submit(generate_for_section, section)
-                       for section in sections]
-            for future in concurrent.futures.as_completed(futures):
-                result = future.result()
-                if result:
-                    for channel_note in result.channels:
-                        channel_name = channel_note.channel
-                        if channel_name not in channel_dict:
-                            channel_dict[channel_name] = []
-                        # Assuming each channel_note has sections with one item
-                        if channel_note.sections:
-                            channel_dict[channel_name].append(channel_note.sections[0])
-                else:
-                    app_logger.error("Failed to generate notes for a section")
+        tasks = [generate_for_section(section) for section in sections]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        for result in results:
+            if isinstance(result, Exception):
+                app_logger.error(f"Failed to generate notes for a section: {result}")
+                continue
+            if result:
+                for channel_note in result.channels:
+                    channel_name = channel_note.channel
+                    if channel_name not in channel_dict:
+                        channel_dict[channel_name] = []
+                    # Assuming each channel_note has sections with one item
+                    if channel_note.sections:
+                        channel_dict[channel_name].append(channel_note.sections[0])
+            else:
+                app_logger.error("Failed to generate notes for a section")
 
         if not channel_dict:
             app_logger.error("Failed to generate notes for any section")
