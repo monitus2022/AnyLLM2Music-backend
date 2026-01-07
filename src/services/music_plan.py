@@ -49,9 +49,9 @@ class MusicPlanService:
             response_format=MusicPlan,
             kwargs=completion_kwargs
         )
-        response = self.llm_service.prompt_llm(prompt_request)
+        music_plan_response = self.llm_service.prompt_llm(prompt_request)
         app_logger.info("Music plan generation completed")
-        return response
+        return music_plan_response
 
     @timeit
     def generate_music_chords_given_plan(
@@ -85,9 +85,9 @@ class MusicPlanService:
             response_format=MusicChords,
             kwargs=completion_kwargs
         )
-        response = self.llm_service.prompt_llm(prompt_request)
+        music_chords_response = self.llm_service.prompt_llm(prompt_request)
         app_logger.info("Music chords generation completed")
-        return response
+        return music_chords_response
 
     @timeit
     def generate_music_rhythm_given_chords(
@@ -121,9 +121,9 @@ class MusicPlanService:
             response_format=MusicRhythm,
             kwargs=completion_kwargs,
         )
-        response = self.llm_service.prompt_llm(prompt_request)
+        music_rhythm_response = self.llm_service.prompt_llm(prompt_request)
         app_logger.info("Music rhythm generation completed")
-        return response
+        return music_rhythm_response
 
     def generate_music_rhythm_given_description(
         self, 
@@ -164,18 +164,19 @@ class MusicPlanService:
             app_logger.error("Failed to generate music rhythm")
             return None
 
-        with open("music_plan.json", "w") as f:
-            json.dump(
-                {
-                    "description": description,
-                    # Load json string to dict/list
-                    "music_plan": music_plan.model_dump(),
-                    "music_chords": music_chords.model_dump(),
-                    "music_rhythm": rhythm_response.model_dump()
-                },
-                f,
-                indent=4,
-            )
+        # Debug purpose only: save to json file
+        # with open("music_plan.json", "w") as f:
+        #     json.dump(
+        #         {
+        #             "description": description,
+        #             # Load json string to dict/list
+        #             "music_plan": music_plan.model_dump(),
+        #             "music_chords": music_chords.model_dump(),
+        #             "music_rhythm": rhythm_response.model_dump()
+        #         },
+        #         f,
+        #         indent=4,
+        #     )
         return music_plan, rhythm_response
 
 
