@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .routes import router
 
-app = FastAPI(title="AnyLLM2Music", version="0.1.0")
+app = FastAPI(title="AnyLLM2Music", version="0.2.0")
 
 app.add_middleware(
     CORSMiddleware,

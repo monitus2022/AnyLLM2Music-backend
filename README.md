@@ -22,6 +22,24 @@ graph TD;
     E4 --> F
 ```
 
+## New Multi-Step API
+
+To improve user experience and reduce processing time, the API has been split into multiple steps allowing user confirmation and editing at each stage.
+
+The flow is:
+
+1. **Generate Plan**: POST `/v1/music/generate_plan` with description -> returns MusicPlan
+
+2. **Generate Chords**: POST `/v1/music/generate_chords` with MusicPlan -> returns MusicChords
+
+3. **Generate Rhythm**: POST `/v1/music/generate_rhythm` with MusicChords -> returns MusicRhythm
+
+4. **Generate MIDI**: POST `/v1/music/generate_midi` with MusicPlan and MusicRhythm -> returns MIDI data
+
+Users can edit the returned data on the frontend and send the modified version to the next step.
+
+The old endpoint `/v1/music/generate_midi_from_description` remains available for backward compatibility.
+
 ## Tech Stack
 
 - LLM: Any OpenAI compatible models API (`x-ai/grok` for development usage)
