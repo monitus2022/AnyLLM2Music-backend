@@ -1,6 +1,34 @@
 from ..services import llm_service, music_plan_service, notes_gen_service
 from fastapi import Query
 from typing import Optional
+from ..schemas.music import MusicPlan, MusicChords, MusicRhythm
+from pydantic import BaseModel
+
+
+class GeneratePlanRequest(BaseModel):
+    description: str
+    model: Optional[str] = None
+    kwargs: Optional[dict] = None
+
+
+class GenerateChordsRequest(BaseModel):
+    music_plan: MusicPlan
+    model: Optional[str] = None
+    kwargs: Optional[dict] = None
+
+
+class GenerateRhythmRequest(BaseModel):
+    music_chords: MusicChords
+    model: Optional[str] = None
+    kwargs: Optional[dict] = None
+
+
+class GenerateNotesRequest(BaseModel):
+    music_plan: MusicPlan
+    music_rhythm: MusicRhythm
+    model: Optional[str] = None
+    kwargs: Optional[dict] = None
+
 
 async def llm_health(model: Optional[str] = Query(default=None, description="LLM model to check")):
     """
@@ -76,5 +104,45 @@ async def create_music_notes_with_cache(
         music_plan=music_plan_response.music_plan,
         music_rhythm=music_plan_response.music_rhythm,
         model=model, kwargs=kwargs
+    )
+
+async def generate_plan(request: GeneratePlanRequest):
+    """
+    Generate a music plan given a text description.
+
+    :param request: GeneratePlanRequest object
+    """
+    return await music_plan_service.generate_music_plan_given_description(
+        description=request.description, model=request.model, kwargs=request.kwargs
+    )
+
+async def generate_chords(request: GenerateChordsRequest):
+    """
+    Generate music chords given a music plan.
+
+    :param request: GenerateChordsRequest object
+    """
+    return await music_plan_service.generate_music_chords_given_plan(
+        music_plan=request.music_plan, model=request.model, kwargs=request.kwargs
+    )
+
+async def generate_rhythm(request: GenerateRhythmRequest):
+    """
+    Generate music rhythm given music chords.
+
+    :param request: GenerateRhythmRequest object
+    """
+    return await music_plan_service.generate_music_rhythm_given_chords(
+        music_chords=request.music_chords, model=request.model, kwargs=request.kwargs
+    )
+
+async def generate_notes(request: GenerateNotesRequest):
+    """
+    Generate music notes given music plan and rhythm.
+
+    :param request: GenerateNotesRequest object
+    """
+    return await notes_gen_service.generate_all_channel_notes(
+        music_plan=request.music_plan, music_rhythm=request.music_rhythm, model=request.model, kwargs=request.kwargs
     )
 

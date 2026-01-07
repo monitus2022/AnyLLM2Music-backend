@@ -1,8 +1,16 @@
 from ..services import llm_service, music_plan_service, notes_gen_service
 from fastapi import Query
 from typing import Optional
-from ..schemas.music import MusicNotes
+from ..schemas.music import MusicNotes, MusicPlan, MusicRhythm
 from ..services.midi import json_to_midi_bytes
+from pydantic import BaseModel
+
+
+class GenerateMidiRequest(BaseModel):
+    music_plan: MusicPlan
+    music_rhythm: MusicRhythm
+    model: Optional[str] = None
+    kwargs: Optional[dict] = None
 
 def generate_midi_from_cache():
     """
@@ -53,3 +61,21 @@ async def generate_midi_from_description(description: str, model: Optional[str] 
         "description": description,
         "midi_data": midi_b64
         }
+
+async def generate_midi(request: GenerateMidiRequest):
+    """
+    Generate MIDI from music plan and rhythm.
+
+    :param request: GenerateMidiRequest object
+    """
+    import base64
+
+    music_notes = await notes_gen_service.generate_all_channel_notes(
+        music_plan=request.music_plan, music_rhythm=request.music_rhythm, model=request.model, kwargs=request.kwargs
+    )
+    if not music_notes:
+        return {"error": "Failed to generate music notes"}
+
+    midi_bytes = json_to_midi_bytes(music_notes)
+    midi_b64 = base64.b64encode(midi_bytes).decode('utf-8')
+    return {"midi_data": midi_b64}
