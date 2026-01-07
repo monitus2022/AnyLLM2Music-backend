@@ -88,8 +88,10 @@ CHORD_OUTPUT_FORMAT = {
 
 MUSIC_PLAN_INPUT = """<No music input is provided from previous steps>"""
 
+MUSIC_DESCRIPTION = """<No original description provided>"""
+
 DEFINE_CHORD_PROMPT = f"""
-You are a music arranger. 
+You are a music arranger.
 Given the outline below, output only the harmonic backbone in compact JSON.
 
 Output format:
@@ -97,6 +99,9 @@ Output format:
 {str(CHORD_OUTPUT_FORMAT)}
 ---------------
 Do not include rhythm grids, dynamics, or other details yet.
+
+Original description:
+{MUSIC_DESCRIPTION}
 
 Outline:
 {MUSIC_PLAN_INPUT}
@@ -148,6 +153,9 @@ Output format:
 ---------------
 {str(RHYTHM_OUTPUT_FORMAT)}
 Do not regenerate chords—only add rhythmic/expression detail for each section.
+
+Original description:
+{MUSIC_DESCRIPTION}
 
 Backbone:
 {MUSIC_CHORDS_INPUT}

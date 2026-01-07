@@ -132,11 +132,11 @@ def test_generate_plan(mock_service, client, mock_music_plan):
 def test_generate_chords(mock_service, client, mock_music_plan, mock_music_chords):
     mock_service.generate_music_chords_given_plan = AsyncMock(return_value=mock_music_chords)
 
-    response = client.post("/v1/music/generate_chords", json={"music_plan": mock_music_plan.model_dump(), "model": None, "kwargs": None})
+    response = client.post("/v1/music/generate_chords", json={"music_plan": mock_music_plan.model_dump(), "description": "A jazz piece", "model": None, "kwargs": None})
 
     assert response.status_code == 200
     mock_service.generate_music_chords_given_plan.assert_called_once_with(
-        music_plan=mock_music_plan, model=None, kwargs=None
+        music_plan=mock_music_plan, description="A jazz piece", model=None, kwargs=None
     )
 
 
@@ -144,11 +144,11 @@ def test_generate_chords(mock_service, client, mock_music_plan, mock_music_chord
 def test_generate_rhythm(mock_service, client, mock_music_chords, mock_music_rhythm):
     mock_service.generate_music_rhythm_given_chords = AsyncMock(return_value=mock_music_rhythm)
 
-    response = client.post("/v1/music/generate_rhythm", json={"music_chords": mock_music_chords.model_dump(), "model": None, "kwargs": None})
+    response = client.post("/v1/music/generate_rhythm", json={"music_chords": mock_music_chords.model_dump(), "description": "A jazz piece", "model": None, "kwargs": None})
 
     assert response.status_code == 200
     mock_service.generate_music_rhythm_given_chords.assert_called_once_with(
-        music_chords=mock_music_chords, model=None, kwargs=None
+        music_chords=mock_music_chords, description="A jazz piece", model=None, kwargs=None
     )
 
 
