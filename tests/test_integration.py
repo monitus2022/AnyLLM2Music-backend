@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, AsyncMock
 from src.main import app
 from src.schemas.music import MusicPlan, MusicRhythm, MusicNotes, TempoFeel, Instrument, StructureSection, LengthScale, RhythmSection
 
@@ -29,8 +29,8 @@ def test_full_pipeline_generate_midi_from_description(mock_midi, mock_notes_serv
     ])
     mock_notes = MusicNotes(channels=[])
 
-    mock_plan_service.generate_music_rhythm_given_description.return_value = (mock_plan, mock_rhythm)
-    mock_notes_service.generate_all_channel_notes.return_value = mock_notes
+    mock_plan_service.generate_music_rhythm_given_description = AsyncMock(return_value=(mock_plan, mock_rhythm))
+    mock_notes_service.generate_all_channel_notes = AsyncMock(return_value=mock_notes)
     mock_midi.return_value = b'midi_bytes'
 
     response = client.get("/generate_midi_from_description?description=A jazz piece")
@@ -43,7 +43,7 @@ def test_full_pipeline_generate_midi_from_description(mock_midi, mock_notes_serv
 
 @patch('src.routes.llm.music_plan_service')
 def test_pipeline_failure_at_plan(mock_plan_service):
-    mock_plan_service.generate_music_rhythm_given_description.return_value = (None, None)
+    mock_plan_service.generate_music_rhythm_given_description = AsyncMock(return_value=(None, None))
 
     response = client.get("/generate_midi_from_description?description=A jazz piece")
 
@@ -69,8 +69,8 @@ def test_pipeline_failure_at_notes(mock_notes_service, mock_plan_service):
     )
     mock_rhythm = MusicRhythm(sections=[])
 
-    mock_plan_service.generate_music_rhythm_given_description.return_value = (mock_plan, mock_rhythm)
-    mock_notes_service.generate_all_channel_notes.return_value = None
+    mock_plan_service.generate_music_rhythm_given_description = AsyncMock(return_value=(mock_plan, mock_rhythm))
+    mock_notes_service.generate_all_channel_notes = AsyncMock(return_value=None)
 
     response = client.get("/generate_midi_from_description?description=A jazz piece")
 
