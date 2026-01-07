@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import Mock, patch, mock_open
+from unittest.mock import Mock, patch, mock_open, AsyncMock
 from src.services.notes_gen import NotesGenService
 from src.schemas.music import MusicPlan, MusicRhythm, SectionChannelsResponse, ChannelNotes, SectionNotes, BarNotes, RhythmSection, TempoFeel, Instrument, StructureSection, LengthScale
 
@@ -40,36 +40,39 @@ def sample_section_channels_response():
 
 @pytest.fixture
 def mock_llm_service():
-    service = Mock()
+    service = AsyncMock()
     return service
 
 
-def test_generate_section_notes_given_music_rhythm(mock_llm_service, sample_music_plan, sample_music_rhythm, sample_section_channels_response):
+@pytest.mark.asyncio
+async def test_generate_section_notes_given_music_rhythm(mock_llm_service, sample_music_plan, sample_music_rhythm, sample_section_channels_response):
     service = NotesGenService(mock_llm_service)
     mock_llm_service.prompt_llm.return_value = sample_section_channels_response
 
-    result = service.generate_section_notes_given_music_rhythm("Intro", sample_music_plan, sample_music_rhythm)
+    result = await service.generate_section_notes_given_music_rhythm("Intro", sample_music_plan, sample_music_rhythm)
 
     assert result == sample_section_channels_response
     mock_llm_service.prompt_llm.assert_called_once()
 
 
-def test_generate_all_channel_notes(mock_llm_service, sample_music_plan, sample_music_rhythm, sample_section_channels_response):
+@pytest.mark.asyncio
+async def test_generate_all_channel_notes(mock_llm_service, sample_music_plan, sample_music_rhythm, sample_section_channels_response):
     service = NotesGenService(mock_llm_service)
     mock_llm_service.prompt_llm.return_value = sample_section_channels_response
 
     with patch("builtins.open", mock_open()) as mock_file:
-        result = service.generate_all_channel_notes(sample_music_plan, sample_music_rhythm)
+        result = await service.generate_all_channel_notes(sample_music_plan, sample_music_rhythm)
 
     assert result is not None
     assert len(result.channels) == 1
     assert result.channels[0].channel == "melody"
 
 
-def test_generate_all_channel_notes_no_sections(mock_llm_service, sample_music_plan):
+@pytest.mark.asyncio
+async def test_generate_all_channel_notes_no_sections(mock_llm_service, sample_music_plan):
     service = NotesGenService(mock_llm_service)
     empty_rhythm = MusicRhythm(sections=[])
 
-    result = service.generate_all_channel_notes(sample_music_plan, empty_rhythm)
+    result = await service.generate_all_channel_notes(sample_music_plan, empty_rhythm)
 
     assert result is None

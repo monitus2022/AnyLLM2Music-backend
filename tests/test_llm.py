@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, AsyncMock
 from src.services.llm import LlmService
 from src.services.midi import duration_to_ticks, pitch_to_midi
 from src.schemas.openrouter import PromptRequest, CompletionKwargs
@@ -12,8 +12,9 @@ def test_llm_service_initialization_openrouter():
 
 @patch('instructor.from_provider')
 @patch.dict('os.environ', {'OPENROUTER_API_KEY': 'fake'})
-def test_prompt_llm_openrouter(mock_instructor):
-    mock_client = Mock()
+@pytest.mark.asyncio
+async def test_prompt_llm_openrouter(mock_instructor):
+    mock_client = AsyncMock()
     mock_instructor.return_value = mock_client
 
     service = LlmService(llm_provider="openrouter")
@@ -32,7 +33,7 @@ def test_prompt_llm_openrouter(mock_instructor):
         kwargs=CompletionKwargs(**mocked_config)
     )
 
-    response = service.prompt_llm(prompt_request)
+    response = await service.prompt_llm(prompt_request)
 
     mock_client.create_with_completion.assert_called_once_with(
         model=mocked_model,

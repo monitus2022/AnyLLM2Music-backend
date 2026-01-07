@@ -4,15 +4,15 @@ from typing import Optional
 from ..schemas.music import MusicNotes
 from ..services.midi import json_to_midi_bytes
 
-def llm_health(model: Optional[str] = Query(default=None, description="LLM model to check")):
+async def llm_health(model: Optional[str] = Query(default=None, description="LLM model to check")):
     """
     Health check endpoint for any model in LLM service.
 
     :param model: model name to check
     """
-    return llm_service.health_check(model=model)
+    return await llm_service.health_check(model=model)
 
-def create_music_plan(description: str, model: Optional[str] = None, kwargs: dict = None):
+async def create_music_plan(description: str, model: Optional[str] = None, kwargs: dict = None):
     """
     Create a music plan given a text description.
 
@@ -20,11 +20,11 @@ def create_music_plan(description: str, model: Optional[str] = None, kwargs: dic
     :param model: LLM model to use
     :param kwargs: Additional kwargs for LLM prompting
     """
-    return music_plan_service.generate_music_plan_given_description(
+    return await music_plan_service.generate_music_plan_given_description(
         description=description, model=model, kwargs=kwargs
     )
 
-def create_music_rhythm(description: str, model: Optional[str] = None, kwargs: dict = None):
+async def create_music_rhythm(description: str, model: Optional[str] = None, kwargs: dict = None):
     """
     Create music rhythm given music chords.
 
@@ -32,12 +32,12 @@ def create_music_rhythm(description: str, model: Optional[str] = None, kwargs: d
     :param model: LLM model to use
     :param kwargs: Additional kwargs for LLM prompting
     """
-    music_plan, rhythm_response = music_plan_service.generate_music_rhythm_given_description(
+    music_plan, rhythm_response = await music_plan_service.generate_music_rhythm_given_description(
         description=description, model=model, kwargs=kwargs
     )
     return rhythm_response
 
-def create_music_notes(description: str, model: Optional[str] = None, kwargs: dict = None):
+async def create_music_notes(description: str, model: Optional[str] = None, kwargs: dict = None):
     """
     Create music notes given description (generates full plan first).
 
@@ -46,17 +46,17 @@ def create_music_notes(description: str, model: Optional[str] = None, kwargs: di
     :param kwargs: Additional kwargs for LLM prompting
     """
     # First generate the full plan
-    music_plan, rhythm_response = music_plan_service.generate_music_rhythm_given_description(
+    music_plan, rhythm_response = await music_plan_service.generate_music_rhythm_given_description(
         description=description, model=model, kwargs=kwargs
     )
     if not rhythm_response:
         return None
 
-    return notes_gen_service.generate_all_channel_notes(
+    return await notes_gen_service.generate_all_channel_notes(
         music_plan=music_plan, music_rhythm=rhythm_response, model=model, kwargs=kwargs
     )
 
-def create_music_notes_with_cache(
+async def create_music_notes_with_cache(
         model: Optional[str] = None, kwargs: dict = None
 ):
     """
@@ -74,7 +74,7 @@ def create_music_notes_with_cache(
         music_plan_full_content: dict = json.load(f)
     music_plan_response: MusicPlanResponse = MusicPlanResponse.model_validate(music_plan_full_content)
 
-    return notes_gen_service.generate_all_channel_notes(
+    return await notes_gen_service.generate_all_channel_notes(
         music_plan=music_plan_response.music_plan,
         music_rhythm=music_plan_response.music_rhythm,
         model=model, kwargs=kwargs
@@ -99,7 +99,7 @@ def generate_midi_from_cache(model: Optional[str] = None, kwargs: dict = None):
     midi_b64 = base64.b64encode(midi_bytes).decode('utf-8')
     return {"midi_data": midi_b64}
 
-def generate_midi_from_description(description: str, model: Optional[str] = None, kwargs: dict = None):
+async def generate_midi_from_description(description: str, model: Optional[str] = None, kwargs: dict = None):
     """
     Final endpoint: Generate music notes from description and generate MIDI.
     Pierces through all components: plan -> rhythm -> notes -> MIDI.
@@ -110,7 +110,7 @@ def generate_midi_from_description(description: str, model: Optional[str] = None
     """
     import base64
 
-    music_notes = create_music_notes(description, model, kwargs)
+    music_notes = await create_music_notes(description, model, kwargs)
     if not music_notes:
         return {"error": "Failed to generate music notes"}
 

@@ -142,7 +142,7 @@ This script:
 
 Ensure the script is executable: `chmod +x docker-local-test.sh`
 
-The script maps the container's port 80 to host port 8000 for easy access.
+The script maps the container's port 443 (HTTPS) to host port 8000 for easy access.
 
 ## Cloud Architecture
 

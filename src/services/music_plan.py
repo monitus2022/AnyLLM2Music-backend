@@ -15,13 +15,21 @@ class MusicPlanService:
         self.llm_service = llm_service
 
     @timeit
-    def generate_music_plan_given_description(
+    async def generate_music_plan_given_description(
         self,
         description: str,
         music_parameters: Optional[dict] = None,
         model: str = None,
         kwargs: dict = None,
     ) -> Optional[MusicPlan]:
+        """
+        Generate a music plan given a text description.
+        :param description: Text description of the music piece
+        :param music_parameters: Additional music parameters
+        :param model: LLM model to use
+        :param kwargs: Additional kwargs for LLM prompting
+        :return: Generated MusicPlan object
+        """
         app_logger.info("Generating music plan from description")
         if not description:
             description = MUSIC_PLAN_USER_DESCRIPTION
@@ -41,18 +49,26 @@ class MusicPlanService:
             response_format=MusicPlan,
             kwargs=completion_kwargs
         )
-        response = self.llm_service.prompt_llm(prompt_request)
+        music_plan_response = await self.llm_service.prompt_llm(prompt_request)
         app_logger.info("Music plan generation completed")
-        return response
+        return music_plan_response
 
     @timeit
-    def generate_music_chords_given_plan(
-        self, 
-        music_plan: MusicPlan, 
-        music_parameters: Optional[dict] = None, 
-        model: str = None, 
+    async def generate_music_chords_given_plan(
+        self,
+        music_plan: MusicPlan,
+        music_parameters: Optional[dict] = None,
+        model: str = None,
         kwargs: dict = None
     ) -> Optional[MusicChords]:
+        """
+        Generate music chords given a music plan.
+        :param music_plan: MusicPlan object
+        :param music_parameters: Additional music parameters
+        :param model: LLM model to use
+        :param kwargs: Additional kwargs for LLM prompting
+        :return: Generated MusicChords object
+        """
         app_logger.info("Generating music chords from music plan")
         if not music_parameters:
             music_parameters = MUSIC_PLAN_USER_PARAMETERS
@@ -69,18 +85,26 @@ class MusicPlanService:
             response_format=MusicChords,
             kwargs=completion_kwargs
         )
-        response = self.llm_service.prompt_llm(prompt_request)
+        music_chords_response = await self.llm_service.prompt_llm(prompt_request)
         app_logger.info("Music chords generation completed")
-        return response
+        return music_chords_response
 
     @timeit
-    def generate_music_rhythm_given_chords(
-        self, 
-        music_chords: MusicChords, 
-        music_parameters: Optional[dict] = None, 
-        model: str = None, 
+    async def generate_music_rhythm_given_chords(
+        self,
+        music_chords: MusicChords,
+        music_parameters: Optional[dict] = None,
+        model: str = None,
         kwargs: dict = None
     ) -> Optional[MusicRhythm]:
+        """
+        Generate music rhythm given music chords.
+        :param music_chords: MusicChords object
+        :param music_parameters: Additional music parameters
+        :param model: LLM model to use
+        :param kwargs: Additional kwargs for LLM prompting
+        :return: Generated MusicRhythm object
+        """
         app_logger.info("Generating music rhythm from music chords")
         if not music_parameters:
             music_parameters = MUSIC_PLAN_USER_PARAMETERS
@@ -97,50 +121,62 @@ class MusicPlanService:
             response_format=MusicRhythm,
             kwargs=completion_kwargs,
         )
-        response = self.llm_service.prompt_llm(prompt_request)
+        music_rhythm_response = await self.llm_service.prompt_llm(prompt_request)
         app_logger.info("Music rhythm generation completed")
-        return response
+        return music_rhythm_response
 
-    def generate_music_rhythm_given_description(
-        self, 
-        description: str, 
-        music_parameters: Optional[dict] = None, 
-        model: str = None, 
+    async def generate_music_rhythm_given_description(
+        self,
+        description: str,
+        music_parameters: Optional[dict] = None,
+        music_plan: MusicPlan = None,
+        model: str = None,
         kwargs: dict = None
     ) -> tuple[Optional[MusicPlan], Optional[MusicRhythm]]:
-        music_plan = self.generate_music_plan_given_description(
+        """
+        Generate music rhythm given a text description.
+        :param description: Text description of the music piece
+        :param music_parameters: Additional music parameters
+        :param music_plan: Pre-generated MusicPlan object (optional)
+        :param model: LLM model to use
+        :param kwargs: Additional kwargs for LLM prompting
+        :return: Tuple of (MusicPlan, MusicRhythm) objects
+        """
+        app_logger.info("Generating music rhythm from description")
+        music_plan = await self.generate_music_plan_given_description(
             description=description, music_parameters=music_parameters, model=model, kwargs=kwargs
         )
         if not music_plan:
             app_logger.error(
                 "Failed to generate music plan; cannot proceed to rhythm generation")
-            return None
-        music_chords = self.generate_music_chords_given_plan(
+            return None, None
+        music_chords = await self.generate_music_chords_given_plan(
             music_plan=music_plan, music_parameters=music_parameters, model=model, kwargs=kwargs
         )
         if not music_chords:
             app_logger.error(
                 "Failed to generate music chords; cannot proceed to rhythm generation")
-            return None
-        rhythm_response = self.generate_music_rhythm_given_chords(
+            return music_plan, None
+        rhythm_response = await self.generate_music_rhythm_given_chords(
             music_chords=music_chords, music_parameters=music_parameters, model=model, kwargs=kwargs
         )
         if not rhythm_response:
             app_logger.error("Failed to generate music rhythm")
             return None
 
-        with open("music_plan.json", "w") as f:
-            json.dump(
-                {
-                    "description": description,
-                    # Load json string to dict/list
-                    "music_plan": music_plan.model_dump(),
-                    "music_chords": music_chords.model_dump(),
-                    "music_rhythm": rhythm_response.model_dump()
-                },
-                f,
-                indent=4,
-            )
+        # Debug purpose only: save to json file
+        # with open("music_plan.json", "w") as f:
+        #     json.dump(
+        #         {
+        #             "description": description,
+        #             # Load json string to dict/list
+        #             "music_plan": music_plan.model_dump(),
+        #             "music_chords": music_chords.model_dump(),
+        #             "music_rhythm": rhythm_response.model_dump()
+        #         },
+        #         f,
+        #         indent=4,
+        #     )
         return music_plan, rhythm_response
 
 

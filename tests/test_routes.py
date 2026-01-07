@@ -1,26 +1,28 @@
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, AsyncMock
 from src.main import app
 from src.schemas.music import MusicPlan, MusicRhythm, MusicNotes
 
-client = TestClient(app)
+@pytest.fixture
+def client():
+    return TestClient(app)
 
 
-def test_read_root():
+def test_read_root(client):
     response = client.get("/")
     assert response.status_code == 200
     assert response.json() == {"app": "AnyLLM2Music"}
 
 
-def test_health_check():
+def test_health_check(client):
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json() == {"status": "healthy"}
 
 
 @patch('src.routes.llm.music_plan_service')
-def test_create_music_plan(mock_service):
+def test_create_music_plan(mock_service, client):
     from src.schemas.music import TempoFeel, Instrument, StructureSection, LengthScale
     mock_plan = MusicPlan(
         genre_style="Jazz",
@@ -34,7 +36,7 @@ def test_create_music_plan(mock_service):
         length_scale=LengthScale(total_bars=16, duration_seconds="1:00"),
         looping_behavior="Repeat"
     )
-    mock_service.generate_music_plan_given_description.return_value = mock_plan
+    mock_service.generate_music_plan_given_description = AsyncMock(return_value=mock_plan)
 
     response = client.get("/create_music_plan?description=A jazz piece")
 
@@ -45,12 +47,12 @@ def test_create_music_plan(mock_service):
 
 
 @patch('src.routes.llm.music_plan_service')
-def test_generate_midi_from_description(mock_service):
+def test_generate_midi_from_description(mock_service, client):
     mock_notes = Mock(spec=MusicNotes)
-    mock_service.generate_music_rhythm_given_description.return_value = (Mock(), Mock())
+    mock_service.generate_music_rhythm_given_description = AsyncMock(return_value=(Mock(), Mock()))
     with patch('src.routes.llm.notes_gen_service') as mock_notes_service, \
-         patch('src.routes.llm.json_to_midi_bytes', return_value=b'midi_bytes') as mock_midi:
-        mock_notes_service.generate_all_channel_notes.return_value = mock_notes
+          patch('src.routes.llm.json_to_midi_bytes', return_value=b'midi_bytes') as mock_midi:
+        mock_notes_service.generate_all_channel_notes = AsyncMock(return_value=mock_notes)
 
         response = client.get("/generate_midi_from_description?description=A jazz piece")
 
@@ -60,8 +62,8 @@ def test_generate_midi_from_description(mock_service):
 
 
 @patch('src.routes.llm.music_plan_service')
-def test_generate_midi_from_description_failure(mock_service):
-    mock_service.generate_music_rhythm_given_description.return_value = (None, None)
+def test_generate_midi_from_description_failure(mock_service, client):
+    mock_service.generate_music_rhythm_given_description = AsyncMock(return_value=(None, None))
 
     response = client.get("/generate_midi_from_description?description=A jazz piece")
 
@@ -71,8 +73,8 @@ def test_generate_midi_from_description_failure(mock_service):
 
 
 @patch('src.routes.llm.llm_service')
-def test_llm_health(mock_service):
-    mock_service.health_check.return_value = {"status": "ok"}
+def test_llm_health(mock_service, client):
+    mock_service.health_check = AsyncMock(return_value={"status": "ok"})
 
     response = client.get("/llm_health?model=test")
 

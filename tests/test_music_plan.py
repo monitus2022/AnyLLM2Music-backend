@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import Mock, patch, mock_open
+from unittest.mock import Mock, patch, mock_open, AsyncMock
 from src.services.music_plan import MusicPlanService
 from src.schemas.music import MusicPlan, MusicChords, MusicRhythm, TempoFeel, Instrument, StructureSection, LengthScale
 
@@ -35,15 +35,16 @@ def sample_music_rhythm():
 
 @pytest.fixture
 def mock_llm_service():
-    service = Mock()
+    service = AsyncMock()
     return service
 
 
-def test_generate_music_plan_given_description(mock_llm_service, sample_music_plan):
+@pytest.mark.asyncio
+async def test_generate_music_plan_given_description(mock_llm_service, sample_music_plan):
     service = MusicPlanService(mock_llm_service)
     mock_llm_service.prompt_llm.return_value = sample_music_plan
 
-    result = service.generate_music_plan_given_description("A jazz piece")
+    result = await service.generate_music_plan_given_description("A jazz piece")
 
     assert result == sample_music_plan
     mock_llm_service.prompt_llm.assert_called_once()
@@ -51,30 +52,33 @@ def test_generate_music_plan_given_description(mock_llm_service, sample_music_pl
     assert "A jazz piece" in call_args.user_messages
 
 
-def test_generate_music_plan_given_description_llm_failure(mock_llm_service):
+@pytest.mark.asyncio
+async def test_generate_music_plan_given_description_llm_failure(mock_llm_service):
     service = MusicPlanService(mock_llm_service)
     mock_llm_service.prompt_llm.return_value = None
 
-    result = service.generate_music_plan_given_description("A jazz piece")
+    result = await service.generate_music_plan_given_description("A jazz piece")
 
     assert result is None
 
 
-def test_generate_music_rhythm_given_description(mock_llm_service, sample_music_plan, sample_music_chords, sample_music_rhythm):
+@pytest.mark.asyncio
+async def test_generate_music_rhythm_given_description(mock_llm_service, sample_music_plan, sample_music_chords, sample_music_rhythm):
     service = MusicPlanService(mock_llm_service)
     mock_llm_service.prompt_llm.side_effect = [sample_music_plan, sample_music_chords, sample_music_rhythm]
 
     with patch("builtins.open", mock_open()) as mock_file:
-        result = service.generate_music_rhythm_given_description("A jazz piece")
+        result = await service.generate_music_rhythm_given_description("A jazz piece")
 
     assert result == (sample_music_plan, sample_music_rhythm)
     assert mock_llm_service.prompt_llm.call_count == 3
 
 
-def test_generate_music_rhythm_given_description_plan_failure(mock_llm_service):
+@pytest.mark.asyncio
+async def test_generate_music_rhythm_given_description_plan_failure(mock_llm_service):
     service = MusicPlanService(mock_llm_service)
     mock_llm_service.prompt_llm.return_value = None
 
-    result = service.generate_music_rhythm_given_description("A jazz piece")
+    result = await service.generate_music_rhythm_given_description("A jazz piece")
 
-    assert result is None
+    assert result == (None, None)
