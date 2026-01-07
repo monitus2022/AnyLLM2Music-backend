@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from .llm import *
+from .midi import *
 
 router = APIRouter()
 
