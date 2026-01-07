@@ -82,3 +82,55 @@ async def test_generate_music_rhythm_given_description_plan_failure(mock_llm_ser
     result = await service.generate_music_rhythm_given_description("A jazz piece")
 
     assert result == (None, None)
+
+
+@pytest.mark.asyncio
+async def test_generate_music_chords_given_plan(mock_llm_service, sample_music_plan, sample_music_chords):
+    service = MusicPlanService(mock_llm_service)
+    mock_llm_service.prompt_llm.return_value = sample_music_chords
+
+    result = await service.generate_music_chords_given_plan(sample_music_plan, description="A jazz piece")
+
+    assert result == sample_music_chords
+    mock_llm_service.prompt_llm.assert_called_once()
+    call_args = mock_llm_service.prompt_llm.call_args[0][0]
+    assert "A jazz piece" in call_args.user_messages
+
+
+@pytest.mark.asyncio
+async def test_generate_music_chords_given_plan_no_description(mock_llm_service, sample_music_plan, sample_music_chords):
+    service = MusicPlanService(mock_llm_service)
+    mock_llm_service.prompt_llm.return_value = sample_music_chords
+
+    result = await service.generate_music_chords_given_plan(sample_music_plan)
+
+    assert result == sample_music_chords
+    mock_llm_service.prompt_llm.assert_called_once()
+    call_args = mock_llm_service.prompt_llm.call_args[0][0]
+    assert "<No original description provided>" in call_args.user_messages
+
+
+@pytest.mark.asyncio
+async def test_generate_music_rhythm_given_chords(mock_llm_service, sample_music_chords, sample_music_rhythm):
+    service = MusicPlanService(mock_llm_service)
+    mock_llm_service.prompt_llm.return_value = sample_music_rhythm
+
+    result = await service.generate_music_rhythm_given_chords(sample_music_chords, description="A jazz piece")
+
+    assert result == sample_music_rhythm
+    mock_llm_service.prompt_llm.assert_called_once()
+    call_args = mock_llm_service.prompt_llm.call_args[0][0]
+    assert "A jazz piece" in call_args.user_messages
+
+
+@pytest.mark.asyncio
+async def test_generate_music_rhythm_given_chords_no_description(mock_llm_service, sample_music_chords, sample_music_rhythm):
+    service = MusicPlanService(mock_llm_service)
+    mock_llm_service.prompt_llm.return_value = sample_music_rhythm
+
+    result = await service.generate_music_rhythm_given_chords(sample_music_chords)
+
+    assert result == sample_music_rhythm
+    mock_llm_service.prompt_llm.assert_called_once()
+    call_args = mock_llm_service.prompt_llm.call_args[0][0]
+    assert "<No original description provided>" in call_args.user_messages

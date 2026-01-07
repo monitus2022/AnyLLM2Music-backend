@@ -13,12 +13,14 @@ class GeneratePlanRequest(BaseModel):
 
 class GenerateChordsRequest(BaseModel):
     music_plan: MusicPlan
+    description: Optional[str] = None
     model: Optional[str] = None
     kwargs: Optional[dict] = None
 
 
 class GenerateRhythmRequest(BaseModel):
     music_chords: MusicChords
+    description: Optional[str] = None
     model: Optional[str] = None
     kwargs: Optional[dict] = None
 
@@ -123,7 +125,7 @@ async def generate_chords(request: GenerateChordsRequest):
     :param request: GenerateChordsRequest object
     """
     return await music_plan_service.generate_music_chords_given_plan(
-        music_plan=request.music_plan, model=request.model, kwargs=request.kwargs
+        music_plan=request.music_plan, description=request.description, model=request.model, kwargs=request.kwargs
     )
 
 async def generate_rhythm(request: GenerateRhythmRequest):
@@ -133,7 +135,7 @@ async def generate_rhythm(request: GenerateRhythmRequest):
     :param request: GenerateRhythmRequest object
     """
     return await music_plan_service.generate_music_rhythm_given_chords(
-        music_chords=request.music_chords, model=request.model, kwargs=request.kwargs
+        music_chords=request.music_chords, description=request.description, model=request.model, kwargs=request.kwargs
     )
 
 async def generate_notes(request: GenerateNotesRequest):

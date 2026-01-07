@@ -57,6 +57,7 @@ class MusicPlanService:
     async def generate_music_chords_given_plan(
         self,
         music_plan: MusicPlan,
+        description: Optional[str] = None,
         music_parameters: Optional[dict] = None,
         model: str = None,
         kwargs: dict = None
@@ -72,9 +73,10 @@ class MusicPlanService:
         app_logger.info("Generating music chords from music plan")
         if not music_parameters:
             music_parameters = MUSIC_PLAN_USER_PARAMETERS
+        description_text = description if description else "<No original description provided>"
         prompt = DEFINE_CHORD_PROMPT.replace(MUSIC_PLAN_INPUT, music_plan.model_dump_json()).replace(
             MUSIC_PLAN_USER_PARAMETERS, str(music_parameters)
-        )
+        ).replace(MUSIC_DESCRIPTION, description_text)
         completion_kwargs = CompletionKwargs(
             **(kwargs or {})
         )
@@ -93,6 +95,7 @@ class MusicPlanService:
     async def generate_music_rhythm_given_chords(
         self,
         music_chords: MusicChords,
+        description: Optional[str] = None,
         music_parameters: Optional[dict] = None,
         model: str = None,
         kwargs: dict = None
@@ -108,9 +111,10 @@ class MusicPlanService:
         app_logger.info("Generating music rhythm from music chords")
         if not music_parameters:
             music_parameters = MUSIC_PLAN_USER_PARAMETERS
+        description_text = description if description else "<No original description provided>"
         prompt = DEFINE_RHYTHM_PROMPT.replace(MUSIC_CHORDS_INPUT, music_chords.model_dump_json()).replace(
             MUSIC_PLAN_USER_PARAMETERS, str(music_parameters)
-        )
+        ).replace(MUSIC_DESCRIPTION, description_text)
         completion_kwargs = CompletionKwargs(
             **(kwargs or {})
         )
