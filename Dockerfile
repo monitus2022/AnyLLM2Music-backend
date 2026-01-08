@@ -23,7 +23,7 @@ FROM python:3.12-slim AS runtime
 WORKDIR /app
 
 # Install only runtime system dependencies
-RUN apt-get update && apt-get install -y nginx supervisor && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y nginx supervisor fluidsynth && rm -rf /var/lib/apt/lists/*
 
 # Copy installed Python packages from build stage
 COPY --from=build /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
