@@ -31,7 +31,7 @@ for r in [
     convert_midi_to_audio
 ]:
     method = ["POST"] if r.__name__ in ["generate_plan", "generate_chords",
-                                        "generate_rhythm", "generate_notes", "generate_midi"] else ["GET"]
+                                        "generate_rhythm", "generate_notes", "generate_midi", "convert_midi_to_audio"] else ["GET"]
     router.add_api_route(
         path="/" + r.__name__,
         endpoint=r,

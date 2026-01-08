@@ -3,6 +3,7 @@ from fastapi.testclient import TestClient
 from unittest.mock import Mock, patch, AsyncMock
 from src.main import app
 from src.schemas.music import MusicPlan, MusicRhythm, MusicNotes
+import base64
 
 @pytest.fixture
 def client():
@@ -163,6 +164,54 @@ def test_generate_notes(mock_notes_service, client, mock_music_plan, mock_music_
     mock_notes_service.generate_all_channel_notes.assert_called_once_with(
         music_plan=mock_music_plan, music_rhythm=mock_music_rhythm, model=None, kwargs=None
     )
+
+
+@patch('src.routes.midi.FluidSynth')
+def test_convert_midi_to_audio(mock_fluidsynth, client):
+    # Mock MIDI data (simple base64 encoded bytes)
+    midi_bytes = b'MThd'  # base64 for some bytes
+    midi_b64 = base64.b64encode(midi_bytes).decode('utf-8')
+
+    # Mock WAV data
+    wav_bytes = b'RIFF\x24\x08\x00\x00WAVEfmt \x10\x00\x00\x00\x01\x00\x01\x00\x80>\x00\x00\x00}\x00\x00\x01\x00\x08\x00data\x00\x08\x00\x00'  # minimal WAV
+    wav_b64 = base64.b64encode(wav_bytes).decode('utf-8')
+
+    # Mock FluidSynth instance
+    mock_fs_instance = Mock()
+    mock_fluidsynth.return_value = mock_fs_instance
+
+    # Mock file operations
+    mock_file = Mock()
+    mock_file.read.return_value = wav_bytes
+    mock_file.__enter__ = Mock(return_value=mock_file)
+    mock_file.__exit__ = Mock(return_value=None)
+    with patch('builtins.open', return_value=mock_file) as mock_open, \
+         patch('os.unlink') as mock_unlink:
+
+        response = client.post("/v1/music/convert_midi_to_audio", json={"midi_data": midi_b64})
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "audio_data" in data
+        assert data["audio_data"] == wav_b64
+
+        # Verify FluidSynth was called
+        mock_fluidsynth.assert_called_once()
+        mock_fs_instance.midi_to_audio.assert_called_once()
+
+
+@patch('src.routes.midi.FluidSynth')
+def test_convert_midi_to_audio_error(mock_fluidsynth, client):
+    mock_fluidsynth.side_effect = Exception("Conversion failed")
+
+    midi_b64 = base64.b64encode(b'invalid').decode('utf-8')
+
+    response = client.post("/v1/music/convert_midi_to_audio", json={"midi_data": midi_b64})
+
+    assert response.status_code == 200
+    data = response.json()
+    assert "error" in data
+    assert "Failed to convert MIDI to audio" in data["error"]
 
 
 @patch('src.routes.midi.notes_gen_service')

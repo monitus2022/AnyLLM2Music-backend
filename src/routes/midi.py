@@ -16,6 +16,9 @@ class GenerateMidiRequest(BaseModel):
     model: Optional[str] = None
     kwargs: Optional[dict] = None
 
+class ConvertMidiToAudioRequest(BaseModel):
+    midi_data: str
+
 
 def generate_midi_from_cache():
     """
@@ -88,7 +91,7 @@ async def generate_midi(request: GenerateMidiRequest):
     return {"midi_data": midi_b64}
 
 
-async def convert_midi_to_audio(midi_data: str):
+async def convert_midi_to_audio(request: ConvertMidiToAudioRequest):
     """
     Convert MIDI data (base64 encoded) to audio (WAV base64 encoded).
 
@@ -96,7 +99,7 @@ async def convert_midi_to_audio(midi_data: str):
     """
     try:
         # Decode MIDI data
-        midi_bytes = base64.b64decode(midi_data)
+        midi_bytes = base64.b64decode(request.midi_data)
 
         # Create temp files
         with tempfile.NamedTemporaryFile(suffix='.mid', delete=False) as midi_file, \
