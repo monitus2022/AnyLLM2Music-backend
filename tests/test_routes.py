@@ -166,7 +166,7 @@ def test_generate_notes(mock_notes_service, client, mock_music_plan, mock_music_
     )
 
 
-@patch('src.routes.midi.FluidSynth')
+@patch('src.services.midi.FluidSynth')
 def test_convert_midi_to_audio(mock_fluidsynth, client):
     # Mock MIDI data (simple base64 encoded bytes)
     midi_bytes = b'MThd'  # base64 for some bytes
@@ -200,7 +200,7 @@ def test_convert_midi_to_audio(mock_fluidsynth, client):
         mock_fs_instance.midi_to_audio.assert_called_once()
 
 
-@patch('src.routes.midi.FluidSynth')
+@patch('src.services.midi.FluidSynth')
 def test_convert_midi_to_audio_error(mock_fluidsynth, client):
     mock_fluidsynth.side_effect = Exception("Conversion failed")
 

@@ -1,7 +1,11 @@
 import os
 import logging
+import base64
+import tempfile
+from typing import Optional
 from mido import MidiFile, MidiTrack, Message, MetaMessage, bpm2tempo
-from src.schemas.music import MusicNotes, ChannelNotes, SectionNotes, BarNotes
+from midi2audio import FluidSynth
+from src.schemas.music import MusicNotes
 
 # Constants
 TICKS_PER_BEAT = 480  # Standard MIDI ticks per beat
@@ -197,3 +201,51 @@ def json_to_midi_bytes(music_notes: MusicNotes, bpm: int = DEFAULT_BPM) -> bytes
     mid.save(file=buffer)
     buffer.seek(0)
     return buffer.read()
+
+def midi_to_audio(midi_data: str, soundfont: Optional[str] = None) -> dict:
+    """
+    Convert MIDI data (base64 encoded) to audio (WAV base64 encoded).
+
+    :param midi_data: Base64 encoded MIDI file data
+    :param soundfont: Name of the soundfont to use (without .sf2 extension)
+    :return: Dict with audio_data or error
+    """
+    try:
+        # Decode MIDI data
+        midi_bytes = base64.b64decode(midi_data)
+
+        # Create temp files
+        with tempfile.NamedTemporaryFile(suffix='.mid', delete=False) as midi_file, \
+                tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as wav_file:
+
+            midi_file_path = midi_file.name
+            wav_file_path = wav_file.name
+
+            # Write MIDI data to temp file
+            midi_file.write(midi_bytes)
+            midi_file.flush()
+
+            # Convert MIDI to WAV using FluidSynth with custom soundfont
+            working_dir = os.path.dirname(os.path.abspath(__file__))
+            soundfont_name = soundfont if soundfont else '8-bit'
+            soundfont_path = os.path.join(working_dir, '..', 'assets', 'soundfonts', f'{soundfont_name}.sf2')
+            if not os.path.exists(soundfont_path):
+                return {"error": f"Soundfont '{soundfont_name}.sf2' not found"}
+            fs = FluidSynth(sound_font=soundfont_path)
+            fs.midi_to_audio(midi_file_path, wav_file_path)
+
+            # Read WAV data
+            with open(wav_file_path, 'rb') as f:
+                wav_bytes = f.read()
+
+            # Encode to base64
+            wav_b64 = base64.b64encode(wav_bytes).decode('utf-8')
+
+        # Clean up temp files
+        os.unlink(midi_file_path)
+        os.unlink(wav_file_path)
+
+        return {"audio_data": wav_b64}
+
+    except Exception as e:
+        return {"error": f"Failed to convert MIDI to audio: {str(e)}"}

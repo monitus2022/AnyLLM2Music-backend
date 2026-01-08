@@ -1,13 +1,8 @@
 from ..services import music_plan_service, notes_gen_service
-from fastapi import Query
 from typing import Optional
 from ..schemas.music import MusicNotes, MusicPlan, MusicRhythm
-from ..services.midi import json_to_midi_bytes
+from ..services.midi import json_to_midi_bytes, midi_to_audio
 from pydantic import BaseModel
-import base64
-import tempfile
-import os
-from midi2audio import FluidSynth
 
 
 class GenerateMidiRequest(BaseModel):
@@ -18,6 +13,7 @@ class GenerateMidiRequest(BaseModel):
 
 class ConvertMidiToAudioRequest(BaseModel):
     midi_data: str
+    soundfont: Optional[str] = None
 
 
 def generate_midi_from_cache():
@@ -92,44 +88,4 @@ async def generate_midi(request: GenerateMidiRequest):
 
 
 async def convert_midi_to_audio(request: ConvertMidiToAudioRequest):
-    """
-    Convert MIDI data (base64 encoded) to audio (WAV base64 encoded).
-
-    :param midi_data: Base64 encoded MIDI file data
-    """
-    try:
-        # Decode MIDI data
-        midi_bytes = base64.b64decode(request.midi_data)
-
-        # Create temp files
-        with tempfile.NamedTemporaryFile(suffix='.mid', delete=False) as midi_file, \
-                tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as wav_file:
-
-            midi_file_path = midi_file.name
-            wav_file_path = wav_file.name
-
-            # Write MIDI data to temp file
-            midi_file.write(midi_bytes)
-            midi_file.flush()
-
-            # Convert MIDI to WAV using FluidSynth with custom soundfont
-            working_dir = os.path.dirname(os.path.abspath(__file__))
-            soundfont_path = os.path.join(working_dir, '..', 'assets', 'soundfonts', '8bit.sf2')
-            fs = FluidSynth(sound_font=soundfont_path)
-            fs.midi_to_audio(midi_file_path, wav_file_path)
-
-            # Read WAV data
-            with open(wav_file_path, 'rb') as f:
-                wav_bytes = f.read()
-
-            # Encode to base64
-            wav_b64 = base64.b64encode(wav_bytes).decode('utf-8')
-
-        # Clean up temp files
-        os.unlink(midi_file_path)
-        os.unlink(wav_file_path)
-
-        return {"audio_data": wav_b64}
-
-    except Exception as e:
-        return {"error": f"Failed to convert MIDI to audio: {str(e)}"}
+    return midi_to_audio(request.midi_data, request.soundfont)
