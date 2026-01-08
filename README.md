@@ -105,6 +105,17 @@ poetry install --with dev
 
 This will install all the required dependencies, including FastAPI, Uvicorn, Pydantic, and python-dotenv, as well as optional development dependencies like pytest, ruff, and black.
 
+### Installing FluidSynth for MIDI to Audio Conversion
+
+For local testing of MIDI to audio conversion features, install FluidSynth:
+
+```bash
+sudo apt-get update
+sudo apt-get install fluidsynth
+```
+
+This is required for the `midi2audio` library to function properly.
+
 ## Environment Configuration
 
 This project uses `python-settings` to load environment variables from a `.env` file.
