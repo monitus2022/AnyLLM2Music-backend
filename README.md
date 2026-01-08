@@ -20,6 +20,7 @@ graph TD;
     E2 --> F
     E3 --> F
     E4 --> F
+    F --> G[MIDI to Audio]
 ```
 
 ## New Multi-Step API
@@ -36,6 +37,8 @@ The flow is:
 
 4. **Generate MIDI**: POST `/v1/music/generate_midi` with MusicPlan and MusicRhythm -> returns MIDI data
 
+5. **Convert MIDI to Audio**: POST `/v1/music/convert_midi_to_audio` with MIDI data -> returns WAV audio data
+
 Users can edit the returned data on the frontend and send the modified version to the next step.
 
 The old endpoint `/v1/music/generate_midi_from_description` remains available for backward compatibility.
@@ -44,6 +47,7 @@ The old endpoint `/v1/music/generate_midi_from_description` remains available fo
 
 - LLM: Any OpenAI compatible models API (`x-ai/grok` for development usage)
 - Midi generation: `mido`
+- Audio synthesis: `midi2audio` with FluidSynth
 - API gateway: `FastAPI`
 
 # Fastapi details (from template)
@@ -54,12 +58,20 @@ The old endpoint `/v1/music/generate_midi_from_description` remains available fo
 src/
 ├── __init__.py
 ├── main.py          # FastAPI app instance and router includes
-└── routes/
-    ├── __init__.py
-    └── root.py      # Root routes (/, /health)
+├── assets/
+│   └── soundfonts/  # Custom soundfonts for audio synthesis
+├── routes/
+│   ├── __init__.py
+│   ├── midi.py      # MIDI generation and conversion routes
+│   └── root.py      # Root routes (/, /health)
+└── services/
+    ├── midi.py      # MIDI file handling utilities
+    └── ...
 tests/
 ├── __init__.py
-└── test_main.py     # Basic tests for the API endpoints
+├── test_midi.py     # MIDI service tests
+├── test_routes.py   # API endpoint tests
+└── ...
 ```
 
 ## Quick Setup
