@@ -189,10 +189,11 @@ The script maps the container's port 443 (HTTPS) to host port 8000 for easy acce
 
 ```mermaid
 graph TD
-    A[Frontend User] --> B[AWS EC2 Instance<br/>Nginx on Port 80]
-    B --> C[Docker Container<br/>FastAPI on Port 8000]
-    C --> D[FastAPI App]
-    D --> E[OpenRouter API]
+    A[Frontend User] --> B[Cloudflare Proxy]
+    B --> C[AWS EC2 Instance<br/>Nginx on Port 80]
+    C --> D[Docker Container<br/>FastAPI on Port 8000]
+    D --> E[FastAPI App]
+    E --> F[OpenRouter API]
 ```
 
 ## Deployment
@@ -200,16 +201,5 @@ graph TD
 The application is deployed via CI/CD to an AWS EC2 instance:
 - **Infrastructure**: ECR repository provisioned using Terraform (see `terraform/main.tf`). EC2 instance managed separately.
 - **Application**: Built as a Docker image, pushed to AWS ECR, and deployed to the EC2 via AWS Systems Manager.
-- **Security**: Uses IAM roles for ECR access and SSM for secure command execution, eliminating SSH keys.
-- **API Access**: Available at the EC2's public IP on port 80.
-
-### Prerequisites
-- EC2 instance must have an IAM role with the following permissions:
-  - `AmazonEC2ContainerRegistryReadOnly` for ECR access
-  - `AmazonSSMManagedInstanceCore` for Systems Manager
-- EC2 instance must be tagged with `Name=AnyLLM2Music-EC2` for SSM targeting.
-- GitHub secrets configured: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `AWS_ACCOUNT_ID`, `OPENROUTER_API_KEY`
-
-For testing the deployed API, use endpoints like:
-- Health: `http://<ec2-public-ip>/health`
-- Generate Music: `http://<ec2-public-ip>/generate_midi_from_description?description=your%20music%20description`
+- **Security**: Uses IAM roles for ECR access and SSM for secure command execution.
+- **API Access**: Available at the EC2's public IP on port 80/443.
