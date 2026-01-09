@@ -1,11 +1,8 @@
-import asyncio
-from openai import AsyncOpenAI
-from openai.types.chat import ChatCompletion
 from ..config import app_settings
 from ..prompts.base import HEALTH_CHECK_PROMPT
 from ..logger import app_logger
 from ..schemas.openrouter import PromptRequest
-from typing import Optional, Union
+from typing import Optional
 import instructor
 from pydantic import BaseModel
 

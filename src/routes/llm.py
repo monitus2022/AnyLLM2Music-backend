@@ -1,7 +1,6 @@
 from ..services import llm_service, music_plan_service, notes_gen_service
 from fastapi import Query
 from typing import Optional
-from ..schemas.music import MusicPlan, MusicChords, MusicRhythm
 from ..schemas.llm import GeneratePlanRequest, GenerateChordsRequest, GenerateRhythmRequest, GenerateNotesRequest
 
 
@@ -12,6 +11,7 @@ async def llm_health(model: Optional[str] = Query(default=None, description="LLM
     :param model: model name to check
     """
     return await llm_service.health_check(model=model)
+
 async def generate_plan(request: GeneratePlanRequest):
     """
     Generate a music plan given a text description.

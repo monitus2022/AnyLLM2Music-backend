@@ -1,6 +1,5 @@
-import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import Mock, patch, AsyncMock
+from unittest.mock import patch, AsyncMock
 from src.main import app
 from src.schemas.music import MusicPlan, MusicRhythm, MusicNotes, TempoFeel, Instrument, StructureSection, LengthScale, RhythmSection
 

@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import Mock, patch, mock_open, AsyncMock
+from unittest.mock import patch, mock_open, AsyncMock
 from src.services.notes_gen import NotesGenService
 from src.schemas.music import MusicPlan, MusicRhythm, SectionChannelsResponse, ChannelNotes, SectionNotes, BarNotes, RhythmSection, TempoFeel, Instrument, StructureSection, LengthScale
 

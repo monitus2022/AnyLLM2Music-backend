@@ -1,7 +1,5 @@
 import re
-from ..services import music_plan_service, notes_gen_service
-from typing import Optional
-from ..schemas.music import MusicNotes, MusicPlan, MusicRhythm
+from ..services import notes_gen_service
 from ..schemas.midi import GenerateMidiRequest, ConvertMidiToAudioRequest
 from ..services.midi import json_to_midi_bytes, midi_to_audio
 
