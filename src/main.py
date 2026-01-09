@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .routes import router
+from .routes.websocket import router as websocket_router
 
-app = FastAPI(title="AnyLLM2Music", version="0.2.0")
+app = FastAPI(title="AnyLLM2Music", version="0.4.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -13,3 +14,4 @@ app.add_middleware(
 )
 
 app.include_router(router, prefix="/v1/music")
+app.include_router(websocket_router, prefix="/v1/music/ws")

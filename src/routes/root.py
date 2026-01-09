@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from .llm import llm_health, create_music_plan, create_music_rhythm, create_music_notes, create_music_notes_with_cache, generate_plan, generate_chords, generate_rhythm, generate_notes
-from .midi import generate_midi_from_cache, generate_midi_from_description, generate_midi, convert_midi_to_audio
+from .llm import llm_health, generate_plan, generate_chords, generate_rhythm, generate_notes
+from .midi import generate_midi, convert_midi_to_audio
 
 router = APIRouter()
 
@@ -17,12 +17,6 @@ def health_check():
 
 for r in [
     llm_health,
-    # create_music_plan,  # Legacy endpoint, replaced by generate_plan
-    # create_music_rhythm,
-    # create_music_notes,
-    # create_music_notes_with_cache,
-    # generate_midi_from_cache,
-    # generate_midi_from_description,
     generate_plan,
     generate_chords,
     generate_rhythm,

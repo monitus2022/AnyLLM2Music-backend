@@ -2,10 +2,10 @@ import asyncio
 from .llm import llm_service, LlmService
 from ..prompts.notes_gen import generate_note_events_prompt
 from ..prompts.base import BASE_CONTEXT_PROMPT
-from typing import Optional, Dict, List
+from typing import Optional
 from ..logger import app_logger
 from ..schemas.openrouter import PromptRequest, CompletionKwargs
-from ..schemas.music import MusicPlan, MusicRhythm, SectionNotes, ChannelNotes, MusicNotes, SectionChannelsResponse
+from ..schemas.music import MusicPlan, MusicRhythm, ChannelNotes, MusicNotes, SectionChannelsResponse
 import json
 from ..utils import timeit
 

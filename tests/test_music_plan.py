@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import Mock, patch, mock_open, AsyncMock
+from unittest.mock import patch, mock_open, AsyncMock
 from src.services.music_plan import MusicPlanService
 from src.schemas.music import MusicPlan, MusicChords, MusicRhythm, TempoFeel, Instrument, StructureSection, LengthScale
 
