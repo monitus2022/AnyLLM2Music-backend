@@ -34,7 +34,8 @@ def test_full_pipeline_generate_midi(mock_midi, mock_notes_service):
 
     assert response.status_code == 200
     data = response.json()
-    assert "midi_data" in data
+    assert "result" in data
+    assert "midi_data" in data["result"]
 
 
 @patch('src.routes.midi.notes_gen_service')
@@ -61,7 +62,8 @@ def test_pipeline_failure_at_notes(mock_notes_service):
 
     assert response.status_code == 200
     data = response.json()
-    assert "error" in data
+    assert "result" in data
+    assert data["result"] is None
 
 
 @patch('src.routes.midi.notes_gen_service')
@@ -86,4 +88,5 @@ def test_pipeline_failure_at_notes_empty_rhythm(mock_notes_service):
 
     assert response.status_code == 200
     data = response.json()
-    assert "error" in data
+    assert "result" in data
+    assert data["result"] is None

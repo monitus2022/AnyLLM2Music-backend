@@ -49,7 +49,8 @@ def test_generate_midi(mock_service, client):
 
         assert response.status_code == 200
         data = response.json()
-        assert "midi_data" in data
+        assert "result" in data
+        assert "midi_data" in data["result"]
         mock_notes_service.generate_all_channel_notes.assert_called_once_with(
             music_plan=mock_plan, music_rhythm=mock_rhythm, model=None, kwargs=None
         )
@@ -79,7 +80,8 @@ def test_generate_midi_failure(mock_notes_service, client):
 
     assert response.status_code == 200
     data = response.json()
-    assert "error" in data
+    assert "result" in data
+    assert data["result"] is None
 
 
 @patch('src.routes.llm.llm_service')
@@ -201,8 +203,9 @@ def test_convert_midi_to_audio(mock_fluidsynth, client):
 
         assert response.status_code == 200
         data = response.json()
-        assert "audio_data" in data
-        assert data["audio_data"] == wav_b64
+        assert "result" in data
+        assert "audio_data" in data["result"]
+        assert data["result"]["audio_data"] == wav_b64
 
         # Verify FluidSynth was called
         mock_fluidsynth.assert_called_once()
@@ -219,8 +222,9 @@ def test_convert_midi_to_audio_error(mock_fluidsynth, client):
 
     assert response.status_code == 200
     data = response.json()
-    assert "error" in data
-    assert "Failed to convert MIDI to audio" in data["error"]
+    assert "result" in data
+    assert "error" in data["result"]
+    assert "Failed to convert MIDI to audio" in data["result"]["error"]
 
 
 @patch('src.routes.midi.notes_gen_service')
@@ -233,7 +237,8 @@ def test_generate_midi(mock_notes_service, client, mock_music_plan, mock_music_r
 
         assert response.status_code == 200
         data = response.json()
-        assert "midi_data" in data
+        assert "result" in data
+        assert "midi_data" in data["result"]
         mock_notes_service.generate_all_channel_notes.assert_called_once_with(
             music_plan=mock_music_plan, music_rhythm=mock_music_rhythm, model=None, kwargs=None
         )
