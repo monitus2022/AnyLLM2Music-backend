@@ -40,7 +40,7 @@ Given a text description (e.g., "retro 8-bit battle theme"), create a structured
 Format the answer as a json with concise but specific details. 
 If user provide any specified parameters (e.g., tempo, key, duration, genre, mood, instruments, time signature), 
 override defaults with these values.
-However, always ensure tempo is 60-200 BPM, duration fits the structure, and instruments match the genre.
+However, always ensure tempo is 40-200 BPM, duration fits the structure, and instruments match the genre.
 
 Output format:
 ----------------------
@@ -54,7 +54,7 @@ User input for music generic description:
 
 User input for specific parameters:
 
-{str(MUSIC_PLAN_USER_PARAMETERS)}
+{MUSIC_PLAN_USER_PARAMETERS}
 """
 
 # Step 2: Chord generation ---------------------------------------------

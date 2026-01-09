@@ -34,7 +34,7 @@ class MusicPlanService:
         music_parameters = music_parameters or MUSIC_PLAN_USER_PARAMETERS
         # Inject into prompt
         prompt = DEFINE_MUSIC_PLAN_PROMPT.replace(MUSIC_PLAN_USER_DESCRIPTION, description).replace(
-            MUSIC_PLAN_USER_PARAMETERS, music_parameters
+            MUSIC_PLAN_USER_PARAMETERS, str(music_parameters)
         )
         completion_kwargs = CompletionKwargs(
             **(kwargs or {})
