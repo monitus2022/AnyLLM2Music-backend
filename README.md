@@ -29,17 +29,27 @@ To improve user experience and reduce processing time, the API has been split in
 
 The flow is:
 
-1. **Generate Plan**: POST `/v1/music/generate_plan` with description -> returns MusicPlan
+1. **Generate Plan**: POST `/v1/music/generate_plan` with description -> returns `{"result": MusicPlan, "session_id": "uuid"}`
 
-2. **Generate Chords**: POST `/v1/music/generate_chords` with MusicPlan -> returns MusicChords
+2. **Generate Chords**: POST `/v1/music/generate_chords` with MusicPlan -> returns `{"result": MusicChords, "session_id": "uuid"}`
 
-3. **Generate Rhythm**: POST `/v1/music/generate_rhythm` with MusicChords -> returns MusicRhythm
+3. **Generate Rhythm**: POST `/v1/music/generate_rhythm` with MusicChords -> returns `{"result": MusicRhythm, "session_id": "uuid"}`
 
-4. **Generate MIDI**: POST `/v1/music/generate_midi` with MusicPlan and MusicRhythm -> returns MIDI data
+4. **Generate MIDI**: POST `/v1/music/generate_midi` with MusicPlan and MusicRhythm -> returns `{"result": {"midi_data": "base64"}, "session_id": "uuid"}`
 
-5. **Convert MIDI to Audio**: POST `/v1/music/convert_midi_to_audio` with MIDI data -> returns WAV audio data
+5. **Convert MIDI to Audio**: POST `/v1/music/convert_midi_to_audio` with MIDI data -> returns `{"result": {"audio_data": "base64"}, "session_id": "uuid"}`
 
 Users can edit the returned data on the frontend and send the modified version to the next step.
+
+## Real-Time Progress Updates
+
+All generation endpoints now support real-time progress tracking via WebSockets:
+
+- Each API response includes a unique `session_id`
+- Connect to WebSocket: `ws://your-backend-domain/v1/music/ws/progress/{session_id}`
+- Receive JSON messages: `{"type": "progress", "stage": "plan_generation", "message": "..."}`, `{"type": "error", ...}`, `{"type": "complete", ...}`
+
+This allows the frontend to display live progress during LLM processing and MIDI generation.
 
 The old endpoint `/v1/music/generate_midi_from_description` remains available for backward compatibility.
 
