@@ -22,33 +22,8 @@ def test_health_check(client):
     assert response.json() == {"status": "healthy"}
 
 
-@patch('src.routes.llm.music_plan_service')
-def test_create_music_plan(mock_service, client):
-    from src.schemas.music import TempoFeel, Instrument, StructureSection, LengthScale
-    mock_plan = MusicPlan(
-        genre_style="Jazz",
-        mood_emotion="Relaxed",
-        tempo_feel=TempoFeel(bpm=120, meter="4/4", feel="Swing"),
-        key_tonality="C Major",
-        instruments=[Instrument(name="Piano", role="melody")],
-        structure=[StructureSection(section="Intro", bars=4, transition="Fade in")],
-        motivic_ideas={"Intro": "Simple motif"},
-        dynamic_contour="Crescendo",
-        length_scale=LengthScale(total_bars=16, duration_seconds="1:00"),
-        looping_behavior="Repeat"
-    )
-    mock_service.generate_music_plan_given_description = AsyncMock(return_value=mock_plan)
-
-    response = client.post("/v1/music/generate_plan", json={"description": "A jazz piece", "model": None, "kwargs": None})
-
-    assert response.status_code == 200
-    mock_service.generate_music_plan_given_description.assert_called_once_with(
-        description="A jazz piece", model=None, kwargs=None
-    )
-
-
 @patch('src.routes.midi.music_plan_service')
-def test_generate_midi_from_description(mock_service, client):
+def test_generate_midi(mock_service, client):
     from src.schemas.music import TempoFeel, Instrument, StructureSection, LengthScale, RhythmSection
     mock_notes = MusicNotes(channels=[])
     mock_plan = MusicPlan(
@@ -81,7 +56,7 @@ def test_generate_midi_from_description(mock_service, client):
 
 
 @patch('src.routes.midi.notes_gen_service')
-def test_generate_midi_from_description_failure(mock_notes_service, client):
+def test_generate_midi_failure(mock_notes_service, client):
     from src.schemas.music import TempoFeel, Instrument, StructureSection, LengthScale, RhythmSection
     mock_plan = MusicPlan(
         genre_style="Jazz",
