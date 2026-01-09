@@ -30,7 +30,7 @@ MUSIC_PLAN_OUTPUT_FORMAT = {
     "looping_behavior": "Seamless loop from end of A back to A; outro optional for full playthrough",
 }
 
-MUSIC_PLAN_USER_DESCRIPTION = """<User didn't input any description>"""
+MUSIC_PLAN_USER_DESCRIPTION = """<User didn't input any description. Raise error messages, do not return any music plan.>"""
 
 MUSIC_PLAN_USER_PARAMETERS = """<User didn't specify any parameters, feel free to use any creative choices>"""
 
