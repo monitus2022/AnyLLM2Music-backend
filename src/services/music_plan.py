@@ -2,11 +2,9 @@ from .llm import llm_service, LlmService
 from ..prompts.music_plan import *
 from ..prompts.base import BASE_CONTEXT_PROMPT
 from typing import Optional
-from openai.types.chat import ChatCompletion
 from ..logger import app_logger
 from ..schemas.openrouter import PromptRequest, CompletionKwargs
 from ..schemas.music import MusicPlan, MusicChords, MusicRhythm
-import json
 from ..utils import timeit
 
 
@@ -31,13 +29,12 @@ class MusicPlanService:
         :return: Generated MusicPlan object
         """
         app_logger.info("Generating music plan from description")
-        if not description:
-            description = MUSIC_PLAN_USER_DESCRIPTION
-        if not music_parameters:
-            # TODO: change hard-code to input
-            music_parameters = MUSIC_PLAN_USER_PARAMETERS
+
+        # Custom music parameters
+        music_parameters = music_parameters or MUSIC_PLAN_USER_PARAMETERS
+        # Inject into prompt
         prompt = DEFINE_MUSIC_PLAN_PROMPT.replace(MUSIC_PLAN_USER_DESCRIPTION, description).replace(
-            MUSIC_PLAN_USER_PARAMETERS, str(music_parameters)
+            MUSIC_PLAN_USER_PARAMETERS, music_parameters
         )
         completion_kwargs = CompletionKwargs(
             **(kwargs or {})

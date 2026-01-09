@@ -32,14 +32,7 @@ MUSIC_PLAN_OUTPUT_FORMAT = {
 
 MUSIC_PLAN_USER_DESCRIPTION = """<User didn't input any description>"""
 
-MUSIC_PLAN_USER_PARAMETERS = """{
-    "genre_style": "8-bit chiptune",
-    "tempo": "120 BPM",
-    "key": "C minor",
-    "time_signature": "4/4",
-    "duration_seconds": 30,
-    "mood_emotion": "energetic",
-}"""
+MUSIC_PLAN_USER_PARAMETERS = """<User didn't specify any parameters, feel free to use any creative choices>"""
 
 DEFINE_MUSIC_PLAN_PROMPT = f"""
 You are a music composer planning a piece before writing notes. 
@@ -61,7 +54,7 @@ User input for music generic description:
 
 User input for specific parameters:
 
-{MUSIC_PLAN_USER_PARAMETERS}
+{str(MUSIC_PLAN_USER_PARAMETERS)}
 """
 
 # Step 2: Chord generation ---------------------------------------------
