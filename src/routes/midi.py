@@ -1,19 +1,8 @@
 from ..services import music_plan_service, notes_gen_service
 from typing import Optional
 from ..schemas.music import MusicNotes, MusicPlan, MusicRhythm
+from ..schemas.midi import GenerateMidiRequest, ConvertMidiToAudioRequest
 from ..services.midi import json_to_midi_bytes, midi_to_audio
-from pydantic import BaseModel
-
-
-class GenerateMidiRequest(BaseModel):
-    music_plan: MusicPlan
-    music_rhythm: MusicRhythm
-    model: Optional[str] = None
-    kwargs: Optional[dict] = None
-
-class ConvertMidiToAudioRequest(BaseModel):
-    midi_data: str
-    soundfont: Optional[str] = None
 
 
 def generate_midi_from_cache():

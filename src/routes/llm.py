@@ -2,34 +2,7 @@ from ..services import llm_service, music_plan_service, notes_gen_service
 from fastapi import Query
 from typing import Optional
 from ..schemas.music import MusicPlan, MusicChords, MusicRhythm
-from pydantic import BaseModel
-
-
-class GeneratePlanRequest(BaseModel):
-    description: str
-    model: Optional[str] = None
-    kwargs: Optional[dict] = None
-
-
-class GenerateChordsRequest(BaseModel):
-    music_plan: MusicPlan
-    description: Optional[str] = None
-    model: Optional[str] = None
-    kwargs: Optional[dict] = None
-
-
-class GenerateRhythmRequest(BaseModel):
-    music_chords: MusicChords
-    description: Optional[str] = None
-    model: Optional[str] = None
-    kwargs: Optional[dict] = None
-
-
-class GenerateNotesRequest(BaseModel):
-    music_plan: MusicPlan
-    music_rhythm: MusicRhythm
-    model: Optional[str] = None
-    kwargs: Optional[dict] = None
+from ..schemas.llm import GeneratePlanRequest, GenerateChordsRequest, GenerateRhythmRequest, GenerateNotesRequest
 
 
 async def llm_health(model: Optional[str] = Query(default=None, description="LLM model to check")):
