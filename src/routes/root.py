@@ -17,12 +17,12 @@ def health_check():
 
 for r in [
     llm_health,
-    create_music_plan,
-    create_music_rhythm,
-    create_music_notes,
-    create_music_notes_with_cache,
-    generate_midi_from_cache,
-    generate_midi_from_description,
+    # create_music_plan,  # Legacy endpoint, replaced by generate_plan
+    # create_music_rhythm,
+    # create_music_notes,
+    # create_music_notes_with_cache,
+    # generate_midi_from_cache,
+    # generate_midi_from_description,
     generate_plan,
     generate_chords,
     generate_rhythm,

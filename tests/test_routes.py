@@ -39,7 +39,7 @@ def test_create_music_plan(mock_service, client):
     )
     mock_service.generate_music_plan_given_description = AsyncMock(return_value=mock_plan)
 
-    response = client.get("/v1/music/create_music_plan?description=A jazz piece")
+    response = client.post("/v1/music/generate_plan", json={"description": "A jazz piece", "model": None, "kwargs": None})
 
     assert response.status_code == 200
     mock_service.generate_music_plan_given_description.assert_called_once_with(
@@ -49,24 +49,58 @@ def test_create_music_plan(mock_service, client):
 
 @patch('src.routes.midi.music_plan_service')
 def test_generate_midi_from_description(mock_service, client):
+    from src.schemas.music import TempoFeel, Instrument, StructureSection, LengthScale, RhythmSection
     mock_notes = MusicNotes(channels=[])
-    mock_service.generate_music_rhythm_given_description = AsyncMock(return_value=(Mock(), Mock()))
+    mock_plan = MusicPlan(
+        genre_style="Jazz",
+        mood_emotion="Relaxed",
+        tempo_feel=TempoFeel(bpm=120, meter="4/4", feel="Swing"),
+        key_tonality="C Major",
+        instruments=[Instrument(name="Piano", role="melody")],
+        structure=[StructureSection(section="Intro", bars=4, transition="Fade in")],
+        motivic_ideas={"Intro": "Simple motif"},
+        dynamic_contour="Crescendo",
+        length_scale=LengthScale(total_bars=16, duration_seconds="1:00"),
+        looping_behavior="Repeat"
+    )
+    mock_rhythm = MusicRhythm(sections=[
+        RhythmSection(section="Intro", bars=4, bass=[], perc=[], melody=[], harmony=[], voiceLeading=[], dynamics=[], polyphony="", loop="")
+    ])
     with patch('src.routes.midi.notes_gen_service') as mock_notes_service, \
            patch('src.routes.midi.json_to_midi_bytes', return_value=b'midi_bytes') as mock_midi:
         mock_notes_service.generate_all_channel_notes = AsyncMock(return_value=mock_notes)
 
-        response = client.get("/v1/music/generate_midi_from_description?description=A jazz piece")
+        response = client.post("/v1/music/generate_midi", json={"music_plan": mock_plan.model_dump(), "music_rhythm": mock_rhythm.model_dump(), "model": None, "kwargs": None})
 
         assert response.status_code == 200
         data = response.json()
         assert "midi_data" in data
+        mock_notes_service.generate_all_channel_notes.assert_called_once_with(
+            music_plan=mock_plan, music_rhythm=mock_rhythm, model=None, kwargs=None
+        )
 
 
-@patch('src.routes.midi.music_plan_service')
-def test_generate_midi_from_description_failure(mock_service, client):
-    mock_service.generate_music_rhythm_given_description = AsyncMock(return_value=(None, None))
+@patch('src.routes.midi.notes_gen_service')
+def test_generate_midi_from_description_failure(mock_notes_service, client):
+    from src.schemas.music import TempoFeel, Instrument, StructureSection, LengthScale, RhythmSection
+    mock_plan = MusicPlan(
+        genre_style="Jazz",
+        mood_emotion="Relaxed",
+        tempo_feel=TempoFeel(bpm=120, meter="4/4", feel="Swing"),
+        key_tonality="C Major",
+        instruments=[Instrument(name="Piano", role="melody")],
+        structure=[StructureSection(section="Intro", bars=4, transition="Fade in")],
+        motivic_ideas={"Intro": "Simple motif"},
+        dynamic_contour="Crescendo",
+        length_scale=LengthScale(total_bars=16, duration_seconds="1:00"),
+        looping_behavior="Repeat"
+    )
+    mock_rhythm = MusicRhythm(sections=[
+        RhythmSection(section="Intro", bars=4, bass=[], perc=[], melody=[], harmony=[], voiceLeading=[], dynamics=[], polyphony="", loop="")
+    ])
+    mock_notes_service.generate_all_channel_notes = AsyncMock(return_value=None)
 
-    response = client.get("/v1/music/generate_midi_from_description?description=A jazz piece")
+    response = client.post("/v1/music/generate_midi", json={"music_plan": mock_plan.model_dump(), "music_rhythm": mock_rhythm.model_dump(), "model": None, "kwargs": None})
 
     assert response.status_code == 200
     data = response.json()
