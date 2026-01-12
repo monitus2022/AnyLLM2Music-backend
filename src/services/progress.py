@@ -24,8 +24,11 @@ class ProgressEmitter:
             except ValueError:
                 pass  # WebSocket not in list
 
-    async def emit_progress(self, session_id: str, stage: str, message: str):
-        await self._emit(session_id, {"type": "progress", "stage": stage, "message": message})
+    async def emit_progress(self, session_id: str, stage: str, message: str, percentage: int = None):
+        data = {"type": "progress", "stage": stage, "message": message}
+        if percentage is not None:
+            data["percentage"] = percentage
+        await self._emit(session_id, data)
 
     async def emit_error(self, session_id: str, stage: str, message: str):
         await self._emit(session_id, {"type": "error", "stage": stage, "message": message})

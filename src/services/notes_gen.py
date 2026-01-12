@@ -8,6 +8,7 @@ from ..schemas.openrouter import PromptRequest, CompletionKwargs
 from ..schemas.music import MusicPlan, MusicRhythm, ChannelNotes, MusicNotes, SectionChannelsResponse
 import json
 from ..utils import timeit
+from .progress import progress_emitter
 
 
 class NotesGenService:
@@ -21,7 +22,8 @@ class NotesGenService:
             music_plan: MusicPlan,
             music_rhythm: MusicRhythm,
             model: str = None,
-            kwargs: dict = None
+            kwargs: dict = None,
+            session_id: str = None,
     ) -> Optional[SectionChannelsResponse]:
         """
         Generate notes for a specific section based on the music plan and rhythm.
@@ -33,6 +35,10 @@ class NotesGenService:
         :return: Generated SectionChannelsResponse object
         """
         app_logger.info(f"Generating notes for section: {section_name}")
+
+        if session_id:
+            await progress_emitter.emit_progress(session_id, "notes_generation", f"Generating notes for section '{section_name}' via LLM...")
+
         prompt = generate_note_events_prompt(
             section_name=section_name,
             rhythm_input=music_rhythm.model_dump_json(),
@@ -54,6 +60,10 @@ class NotesGenService:
             kwargs=completion_kwargs,
         )
         response = await self.llm_service.prompt_llm(prompt_request)
+
+        if session_id:
+            await progress_emitter.emit_progress(session_id, "notes_generation", f"Notes for section '{section_name}' LLM call completed")
+
         if response:
             return response
         return None
@@ -64,7 +74,8 @@ class NotesGenService:
             music_plan: MusicPlan,
             music_rhythm: MusicRhythm,
             model: str = None,
-            kwargs: dict = None) -> Optional[MusicNotes]:
+            kwargs: dict = None,
+            session_id: str = None) -> Optional[MusicNotes]:
         """
         Generate notes for all sections in the music rhythm based on the music plan.
         :param music_plan: MusicPlan
@@ -84,7 +95,7 @@ class NotesGenService:
         channel_dict = {}
 
         async def generate_for_section(section_name):
-            return await self.generate_section_notes_given_music_rhythm(section_name, music_plan, music_rhythm, model, kwargs)
+            return await self.generate_section_notes_given_music_rhythm(section_name, music_plan, music_rhythm, model, kwargs, session_id)
 
         tasks = [generate_for_section(section) for section in sections]
         results = await asyncio.gather(*tasks, return_exceptions=True)

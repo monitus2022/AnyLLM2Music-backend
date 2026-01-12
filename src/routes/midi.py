@@ -20,7 +20,7 @@ async def generate_midi(request: GenerateMidiRequest):
     try:
         await progress_emitter.emit_progress(session_id, "midi_generation", "Generating music notes...")
         music_notes = await notes_gen_service.generate_all_channel_notes(
-            music_plan=request.music_plan, music_rhythm=request.music_rhythm, model=request.model, kwargs=request.kwargs
+            music_plan=request.music_plan, music_rhythm=request.music_rhythm, model=request.model, kwargs=request.kwargs, session_id=session_id
         )
         if not music_notes:
             await progress_emitter.emit_error(session_id, "midi_generation", "Failed to generate music notes")
