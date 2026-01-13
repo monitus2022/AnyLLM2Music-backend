@@ -23,7 +23,8 @@ def test_health_check(client):
 
 
 @patch('src.routes.midi.music_plan_service')
-def test_generate_midi(mock_service, client):
+@patch('src.routes.midi.uuid.uuid4', return_value='test-session-id')
+def test_generate_midi(mock_uuid, mock_service, client):
     from src.schemas.music import TempoFeel, Instrument, StructureSection, LengthScale, RhythmSection
     mock_notes = MusicNotes(channels=[])
     mock_plan = MusicPlan(
@@ -52,7 +53,7 @@ def test_generate_midi(mock_service, client):
         assert "result" in data
         assert "midi_data" in data["result"]
         mock_notes_service.generate_all_channel_notes.assert_called_once_with(
-            music_plan=mock_plan, music_rhythm=mock_rhythm, model=None, kwargs=None
+            music_plan=mock_plan, music_rhythm=mock_rhythm, model=None, kwargs=None, session_id='test-session-id'
         )
 
 
@@ -129,43 +130,47 @@ def mock_music_rhythm():
 
 
 @patch('src.routes.llm.music_plan_service')
-def test_generate_plan(mock_service, client, mock_music_plan):
+@patch('src.routes.llm.uuid.uuid4', return_value='test-session-id')
+def test_generate_plan(mock_uuid, mock_service, client, mock_music_plan):
     mock_service.generate_music_plan_given_description = AsyncMock(return_value=mock_music_plan)
 
     response = client.post("/v1/music/generate_plan", json={"description": "A jazz piece", "model": None, "kwargs": None})
 
     assert response.status_code == 200
     mock_service.generate_music_plan_given_description.assert_called_once_with(
-        description="A jazz piece", model=None, kwargs=None
+        description="A jazz piece", model=None, kwargs=None, session_id='test-session-id'
     )
 
 
 @patch('src.routes.llm.music_plan_service')
-def test_generate_chords(mock_service, client, mock_music_plan, mock_music_chords):
+@patch('src.routes.llm.uuid.uuid4', return_value='test-session-id')
+def test_generate_chords(mock_uuid, mock_service, client, mock_music_plan, mock_music_chords):
     mock_service.generate_music_chords_given_plan = AsyncMock(return_value=mock_music_chords)
 
     response = client.post("/v1/music/generate_chords", json={"music_plan": mock_music_plan.model_dump(), "description": "A jazz piece", "model": None, "kwargs": None})
 
     assert response.status_code == 200
     mock_service.generate_music_chords_given_plan.assert_called_once_with(
-        music_plan=mock_music_plan, description="A jazz piece", model=None, kwargs=None
+        music_plan=mock_music_plan, description="A jazz piece", model=None, kwargs=None, session_id='test-session-id'
     )
 
 
 @patch('src.routes.llm.music_plan_service')
-def test_generate_rhythm(mock_service, client, mock_music_chords, mock_music_rhythm):
+@patch('src.routes.llm.uuid.uuid4', return_value='test-session-id')
+def test_generate_rhythm(mock_uuid, mock_service, client, mock_music_chords, mock_music_rhythm):
     mock_service.generate_music_rhythm_given_chords = AsyncMock(return_value=mock_music_rhythm)
 
     response = client.post("/v1/music/generate_rhythm", json={"music_chords": mock_music_chords.model_dump(), "description": "A jazz piece", "model": None, "kwargs": None})
 
     assert response.status_code == 200
     mock_service.generate_music_rhythm_given_chords.assert_called_once_with(
-        music_chords=mock_music_chords, description="A jazz piece", model=None, kwargs=None
+        music_chords=mock_music_chords, description="A jazz piece", model=None, kwargs=None, session_id='test-session-id'
     )
 
 
 @patch('src.routes.llm.notes_gen_service')
-def test_generate_notes(mock_notes_service, client, mock_music_plan, mock_music_rhythm):
+@patch('src.routes.llm.uuid.uuid4', return_value='test-session-id')
+def test_generate_notes(mock_uuid, mock_notes_service, client, mock_music_plan, mock_music_rhythm):
     mock_notes = MusicNotes(channels=[])
     mock_notes_service.generate_all_channel_notes = AsyncMock(return_value=mock_notes)
 
@@ -173,7 +178,7 @@ def test_generate_notes(mock_notes_service, client, mock_music_plan, mock_music_
 
     assert response.status_code == 200
     mock_notes_service.generate_all_channel_notes.assert_called_once_with(
-        music_plan=mock_music_plan, music_rhythm=mock_music_rhythm, model=None, kwargs=None
+        music_plan=mock_music_plan, music_rhythm=mock_music_rhythm, model=None, kwargs=None, session_id='test-session-id'
     )
 
 
@@ -228,7 +233,8 @@ def test_convert_midi_to_audio_error(mock_fluidsynth, client):
 
 
 @patch('src.routes.midi.notes_gen_service')
-def test_generate_midi(mock_notes_service, client, mock_music_plan, mock_music_rhythm):
+@patch('src.routes.midi.uuid.uuid4', return_value='test-session-id')
+def test_generate_midi(mock_uuid, mock_notes_service, client, mock_music_plan, mock_music_rhythm):
     mock_notes = MusicNotes(channels=[])
     mock_notes_service.generate_all_channel_notes = AsyncMock(return_value=mock_notes)
 
@@ -240,5 +246,5 @@ def test_generate_midi(mock_notes_service, client, mock_music_plan, mock_music_r
         assert "result" in data
         assert "midi_data" in data["result"]
         mock_notes_service.generate_all_channel_notes.assert_called_once_with(
-            music_plan=mock_music_plan, music_rhythm=mock_music_rhythm, model=None, kwargs=None
+            music_plan=mock_music_plan, music_rhythm=mock_music_rhythm, model=None, kwargs=None, session_id='test-session-id'
         )

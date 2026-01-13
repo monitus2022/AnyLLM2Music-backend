@@ -6,6 +6,7 @@ from ..logger import app_logger
 from ..schemas.openrouter import PromptRequest, CompletionKwargs
 from ..schemas.music import MusicPlan, MusicChords, MusicRhythm
 from ..utils import timeit
+from .progress import progress_emitter
 
 
 class MusicPlanService:
@@ -19,6 +20,7 @@ class MusicPlanService:
         music_parameters: Optional[dict] = None,
         model: str = None,
         kwargs: dict = None,
+        session_id: str = None,
     ) -> Optional[MusicPlan]:
         """
         Generate a music plan given a text description.
@@ -29,6 +31,9 @@ class MusicPlanService:
         :return: Generated MusicPlan object
         """
         app_logger.info("Generating music plan from description")
+
+        if session_id:
+            await progress_emitter.emit_progress(session_id, "plan_generation", "Generating music plan via LLM...", percentage=25)
 
         # Custom music parameters
         music_parameters = music_parameters or MUSIC_PLAN_USER_PARAMETERS
@@ -48,6 +53,10 @@ class MusicPlanService:
         )
         music_plan_response = await self.llm_service.prompt_llm(prompt_request)
         app_logger.info("Music plan generation completed")
+
+        if session_id:
+            await progress_emitter.emit_progress(session_id, "plan_generation", "Music plan LLM call completed", percentage=75)
+
         return music_plan_response
 
     @timeit
@@ -57,7 +66,8 @@ class MusicPlanService:
         description: Optional[str] = None,
         music_parameters: Optional[dict] = None,
         model: str = None,
-        kwargs: dict = None
+        kwargs: dict = None,
+        session_id: str = None,
     ) -> Optional[MusicChords]:
         """
         Generate music chords given a music plan.
@@ -68,6 +78,10 @@ class MusicPlanService:
         :return: Generated MusicChords object
         """
         app_logger.info("Generating music chords from music plan")
+
+        if session_id:
+            await progress_emitter.emit_progress(session_id, "chords_generation", "Generating music chords via LLM...")
+
         if not music_parameters:
             music_parameters = MUSIC_PLAN_USER_PARAMETERS
         description_text = description if description else "<No original description provided>"
@@ -86,6 +100,10 @@ class MusicPlanService:
         )
         music_chords_response = await self.llm_service.prompt_llm(prompt_request)
         app_logger.info("Music chords generation completed")
+
+        if session_id:
+            await progress_emitter.emit_progress(session_id, "chords_generation", "Music chords LLM call completed")
+
         return music_chords_response
 
     @timeit
@@ -95,7 +113,8 @@ class MusicPlanService:
         description: Optional[str] = None,
         music_parameters: Optional[dict] = None,
         model: str = None,
-        kwargs: dict = None
+        kwargs: dict = None,
+        session_id: str = None,
     ) -> Optional[MusicRhythm]:
         """
         Generate music rhythm given music chords.
@@ -106,6 +125,10 @@ class MusicPlanService:
         :return: Generated MusicRhythm object
         """
         app_logger.info("Generating music rhythm from music chords")
+
+        if session_id:
+            await progress_emitter.emit_progress(session_id, "rhythm_generation", "Generating music rhythm via LLM...")
+
         if not music_parameters:
             music_parameters = MUSIC_PLAN_USER_PARAMETERS
         description_text = description if description else "<No original description provided>"
@@ -124,6 +147,10 @@ class MusicPlanService:
         )
         music_rhythm_response = await self.llm_service.prompt_llm(prompt_request)
         app_logger.info("Music rhythm generation completed")
+
+        if session_id:
+            await progress_emitter.emit_progress(session_id, "rhythm_generation", "Music rhythm LLM call completed")
+
         return music_rhythm_response
 
     async def generate_music_rhythm_given_description(
@@ -132,7 +159,8 @@ class MusicPlanService:
         music_parameters: Optional[dict] = None,
         music_plan: MusicPlan = None,
         model: str = None,
-        kwargs: dict = None
+        kwargs: dict = None,
+        session_id: str = None,
     ) -> tuple[Optional[MusicPlan], Optional[MusicRhythm]]:
         """
         Generate music rhythm given a text description.
@@ -145,21 +173,21 @@ class MusicPlanService:
         """
         app_logger.info("Generating music rhythm from description")
         music_plan = await self.generate_music_plan_given_description(
-            description=description, music_parameters=music_parameters, model=model, kwargs=kwargs
+            description=description, music_parameters=music_parameters, model=model, kwargs=kwargs, session_id=session_id
         )
         if not music_plan:
             app_logger.error(
                 "Failed to generate music plan; cannot proceed to rhythm generation")
             return None, None
         music_chords = await self.generate_music_chords_given_plan(
-            music_plan=music_plan, music_parameters=music_parameters, model=model, kwargs=kwargs
+            music_plan=music_plan, music_parameters=music_parameters, model=model, kwargs=kwargs, session_id=session_id
         )
         if not music_chords:
             app_logger.error(
                 "Failed to generate music chords; cannot proceed to rhythm generation")
             return music_plan, None
         rhythm_response = await self.generate_music_rhythm_given_chords(
-            music_chords=music_chords, music_parameters=music_parameters, model=model, kwargs=kwargs
+            music_chords=music_chords, music_parameters=music_parameters, model=model, kwargs=kwargs, session_id=session_id
         )
         if not rhythm_response:
             app_logger.error("Failed to generate music rhythm")
